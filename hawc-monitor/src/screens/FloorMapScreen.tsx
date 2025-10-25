@@ -1,10 +1,11 @@
 import React from "react";
 import { ScrollView, View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import Header from "../components/Header";
 
 export default function FloorMapScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Floor 1 Map</Text>
+      <Header title="Floor 1 Map" />
 
       <View style={styles.card}>
         <Image
@@ -23,7 +24,6 @@ export default function FloorMapScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f7f7f7" },
   content: { padding: 16 },
-  title: { fontSize: 22, fontWeight: "700", color: "#0d7ff2", textAlign: "center", marginBottom: 16 },
   card: { backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", elevation: 1 },
   map: { width: "100%", height: 300, resizeMode: "contain" },
   primaryBtn: { marginTop: 16, backgroundColor: "#0d7ff2", paddingVertical: 14, borderRadius: 16 },

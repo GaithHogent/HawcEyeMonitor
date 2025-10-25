@@ -1,10 +1,11 @@
 import React from "react";
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Header from "../components/Header";
 
 export default function TicketDetailScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Ticket Detail</Text>
+      <Header title="Ticket Detail" />
 
       <View style={styles.card}>
         <Text style={styles.name}>Fire Sensor not responding</Text>
@@ -53,13 +54,6 @@ export default function TicketDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f7f7f7" },
   content: { padding: 16 },
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#0d7ff2",
-    textAlign: "center",
-    marginBottom: 16,
-  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 16,

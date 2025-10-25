@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import Header from "../components/Header";
 
 const DEVICES = [
   { id: "1", name: "Camera A1", type: "Camera", floor: "1", status: "Normal" },
@@ -23,7 +24,7 @@ export default function DevicesListScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Devices</Text>
+      <Header title="Devices" />
       <FlatList
         data={DEVICES}
         keyExtractor={(it) => it.id}
@@ -36,7 +37,6 @@ export default function DevicesListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f7f7f7", padding: 16 },
-  title: { fontSize: 22, fontWeight: "700", color: "#0d7ff2", textAlign: "center", marginBottom: 16 },
   item: { backgroundColor: "#fff", borderRadius: 16, padding: 14, marginBottom: 10, elevation: 1 },
   itemTitle: { fontSize: 16, fontWeight: "700", color: "#111827" },
   itemSub: { marginTop: 4, fontSize: 13, color: "#6b7280" },
