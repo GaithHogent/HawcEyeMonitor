@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Header from "../components/Header";
 
-export default function FloorMapScreen() {
+export default function FloorsOverviewScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Header title="Floor 1 Map" />
