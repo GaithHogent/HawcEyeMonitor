@@ -1,22 +1,39 @@
 import React from "react";
-import { ScrollView, View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import Header from "../components/Header";
+import FloorPreviewCard from "../components/floors-overview-screen/FloorPreviewCard";
 
 export default function FloorsOverviewScreen() {
+  const floors = [
+    {
+      title: "Floor 1",
+      image: require("../../assets/floor1.png"),
+    },
+    {
+      title: "Floor 2",
+      image: require("../../assets/floor2.png"),
+    },
+    {
+      title: "Floor 3",
+      image: require("../../assets/floor3.png"),
+    },
+  ];
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Header title="Floor 1 Map" />
+      <Header title="Building Floors" subtitle="Select a floor to view details" />
 
-      <View style={styles.card}>
-        <Image
-          source={require("../../assets/floor-plan.png")}
-          style={styles.map}
+      {floors.map((f, i) => (
+        <FloorPreviewCard
+          key={i}
+          image={f.image}
+          title={f.title}
+          onView={() => {
+            // سينتقل لاحقًا إلى صفحة خريطة الطابق
+            console.log("Navigate to full map for", f.title);
+          }}
         />
-      </View>
-
-      <TouchableOpacity style={styles.primaryBtn}>
-        <Text style={styles.primaryBtnText}>Add Device</Text>
-      </TouchableOpacity>
+      ))}
     </ScrollView>
   );
 }
@@ -24,8 +41,4 @@ export default function FloorsOverviewScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f7f7f7" },
   content: { padding: 16 },
-  card: { backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", elevation: 1 },
-  map: { width: "100%", height: 300, resizeMode: "contain" },
-  primaryBtn: { marginTop: 16, backgroundColor: "#0d7ff2", paddingVertical: 14, borderRadius: 16 },
-  primaryBtnText: { color: "#fff", textAlign: "center", fontWeight: "700" },
 });
