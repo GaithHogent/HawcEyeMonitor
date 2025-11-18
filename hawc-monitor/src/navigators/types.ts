@@ -10,4 +10,5 @@ export type DashboardStackParams = {
   Dashboard: undefined;
   DeviceDetail: { id: string };
   TicketDetail: { id: string };
+  FullFloorMap: { floorId: string; svgPath: string };
 };

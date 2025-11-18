@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { HawcTabParamsList } from "./types";
 
 import DashboardStackNavigator from "./DashboardStackNavigator";
-import FloorsOverviewScreen from "../screens/FloorsOverviewScreen";
+import MapStackNavigator from "./MapStackNavigator"; // تمت إضافته هنا
 import DevicesListScreen from "../screens/DevicesListScreen";
 import AlertsCenterScreen from "../screens/AlertsCenterScreen";
 import SettingsScreen from "../screens/SettingsScreen";
@@ -35,7 +35,7 @@ export default function HawcTabNavigator() {
       />
       <Tab.Screen
         name="Map"
-        component={FloorsOverviewScreen}
+        component={MapStackNavigator}  // <-- التعديل الوحيد
         options={{
           tabBarLabel: "Map",
           tabBarIcon: ({ color, size }) => (
