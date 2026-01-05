@@ -1,8 +1,24 @@
 // src/screens/SettingsScreen.tsx
 import { View, Text, TouchableOpacity, Switch, StyleSheet } from "react-native";
 import Header from "../components/Header";
+import { signOut } from "firebase/auth";
+import { auth } from "../config/firebase";
 
 export default function SettingsScreen() {
+
+const performLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.log('Logout error:', error);
+    }
+  };
+
+  const onLogout = () => {
+    performLogout();
+  };
+
+
   return (
     <View style={styles.container}>
       <Header title="Settings" />
@@ -18,7 +34,7 @@ export default function SettingsScreen() {
       </View>
 
       <TouchableOpacity style={styles.logoutBtn}>
-        <Text style={styles.logoutText}>Logout</Text>
+        <Text onPress={onLogout} style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
