@@ -3,6 +3,15 @@ import type { StackScreenProps } from '@react-navigation/stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
 // =============================================================================
+// Auth Stack
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: { email?: string } | undefined;
+};
+
+export type AuthStackNavProps<T extends keyof AuthStackParamList> =
+  StackScreenProps<AuthStackParamList, T>;
+// =============================================================================
 // Tabs
 export type TabParamsList = {
   Home: undefined;
@@ -37,6 +46,8 @@ declare global {
   namespace ReactNavigation {
     interface RootParamList
       extends AppStackParamsList,
+        AuthStackParamList,
+        MapStackParamsList,
       TabParamsList { }
   }
 }
