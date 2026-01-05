@@ -1,16 +1,12 @@
 // src/navigation/MapStackNavigator.tsx
 import { createStackNavigator } from "@react-navigation/stack";
+import type { MapStackParamsList } from "./types";
 
 // Screens
 import FloorsOverviewScreen from "../screens/FloorsOverviewScreen";
 import FullFloorMapScreen from "../screens/FullFloorMapScreen";
 
-export type MapStackParams = {
-  FloorsOverview: undefined;
-  FullFloorMap: { floorId: string; svgPath: any };
-};
-
-const Stack = createStackNavigator<MapStackParams>();
+const Stack = createStackNavigator<MapStackParamsList>();
 
 export default function MapStackNavigator() {
   return (

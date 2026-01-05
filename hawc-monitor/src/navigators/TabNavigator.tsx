@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const Tab = createBottomTabNavigator<TabParamsList>();
 const PRIMARY = "#0d7ff2";
 
-export default function HawcTabNavigator() {
+export default function TabNavigator() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
     <Tab.Navigator

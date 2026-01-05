@@ -1,4 +1,4 @@
-// src/navigation/AppStackNavigator.tsx
+// src/navigators/AppStackNavigator.tsx
 import { createStackNavigator } from "@react-navigation/stack";
 import type { AppStackParamsList } from "./types";
 import DashboardScreen from "../screens/DashboardScreen";

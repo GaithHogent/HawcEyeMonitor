@@ -24,6 +24,14 @@ export type AppStackParamsList = {
 export type AppStackNavProps<T extends keyof AppStackParamsList> =
   StackScreenProps<AppStackParamsList, T>;
 // =============================================================================
+// Map Stack
+  export type MapStackParamsList = {
+    FloorsOverview: undefined;
+    FullFloorMap: { floorId: string; svgPath: any };
+  };
+  export type MapStackNavProps<T extends keyof MapStackParamsList> =
+  StackScreenProps<MapStackParamsList, T>;
+// =============================================================================
 // React Navigation Global Param List
 declare global {
   namespace ReactNavigation {
