@@ -1,5 +1,4 @@
 // src/components/full-floor-map-screen/SvgMapViewer.tsx
-import React from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";

@@ -1,6 +1,5 @@
+// src/components/Root.tsx
 import "react-native-gesture-handler";
-import { StyleSheet } from "react-native";
-import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import HawcTabNavigator from "../navigators/HawcTabNavigator";
@@ -17,4 +16,3 @@ const Root = () => {
 
 export default Root;
 
-const styles = StyleSheet.create({});

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+// src/components/dashboard-screen/ImageCarousel.tsx
+import { useEffect, useRef, useState } from "react";
 import {
   View,
   Image,

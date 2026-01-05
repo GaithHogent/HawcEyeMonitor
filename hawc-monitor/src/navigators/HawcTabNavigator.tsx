@@ -1,16 +1,16 @@
-import React from "react";
+// src/navigators/HawcTabNavigator.tsx
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import type { HawcTabParamsList } from "./types";
+import type { TabParamsList } from "./types";
 
-import DashboardStackNavigator from "./DashboardStackNavigator";
-import MapStackNavigator from "./MapStackNavigator"; // تمت إضافته هنا
+import DashboardStackNavigator from "./AppStackNavigator";
+import MapStackNavigator from "./MapStackNavigator";
 import DevicesListScreen from "../screens/DevicesListScreen";
 import AlertsCenterScreen from "../screens/AlertsCenterScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const Tab = createBottomTabNavigator<HawcTabParamsList>();
+const Tab = createBottomTabNavigator<TabParamsList>();
 const PRIMARY = "#0d7ff2";
 
 export default function HawcTabNavigator() {
@@ -35,7 +35,7 @@ export default function HawcTabNavigator() {
       />
       <Tab.Screen
         name="Map"
-        component={MapStackNavigator}  // <-- التعديل الوحيد
+        component={MapStackNavigator}
         options={{
           tabBarLabel: "Map",
           tabBarIcon: ({ color, size }) => (

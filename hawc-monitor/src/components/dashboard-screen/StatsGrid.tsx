@@ -1,5 +1,4 @@
 // src/components/dashboard-screen/StatsGrid.tsx
-import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 type StatItem = {

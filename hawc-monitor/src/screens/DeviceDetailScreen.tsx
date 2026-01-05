@@ -1,4 +1,4 @@
-import React from "react";
+// src/screens/DeviceDetailScreen.tsx
 import { ScrollView, View, Text, StyleSheet } from "react-native";
 import Header from "../components/Header";
 

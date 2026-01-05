@@ -1,5 +1,4 @@
 // src/navigation/MapStackNavigator.tsx
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 
 // Screens

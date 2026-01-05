@@ -1,5 +1,4 @@
 // src/components/floors-overview-screen/FloorPreviewCard.tsx
-import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, ImageSourcePropType } from "react-native";
 
 type Props = {

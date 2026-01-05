@@ -1,5 +1,5 @@
 // src/screens/FullFloorMapScreen.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { Asset } from "expo-asset";

@@ -1,4 +1,4 @@
-import React from "react";
+// src/screens/SettingsScreen.tsx
 import { View, Text, TouchableOpacity, Switch, StyleSheet } from "react-native";
 import Header from "../components/Header";
 

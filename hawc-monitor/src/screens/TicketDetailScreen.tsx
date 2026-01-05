@@ -1,4 +1,4 @@
-import React from "react";
+// src/screens/TicketDetailScreen.tsx
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Header from "../components/Header";
 

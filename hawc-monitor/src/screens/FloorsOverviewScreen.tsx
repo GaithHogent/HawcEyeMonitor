@@ -1,4 +1,4 @@
-import React from "react";
+// src/screens/FloorsOverviewScreen.tsx
 import { ScrollView, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";

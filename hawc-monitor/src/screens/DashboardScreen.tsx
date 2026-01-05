@@ -1,4 +1,4 @@
-import React from "react";
+// src/screens/DashboardScreen.tsx
 import { ScrollView, View, Text, StyleSheet } from "react-native";
 import ImageCarousel from "../components/dashboard-screen/ImageCarousel";
 import StatsGrid from "../components/dashboard-screen/StatsGrid";

@@ -1,4 +1,4 @@
-import React from "react";
+// src/screens/DevicesListScreen.tsx
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import Header from "../components/Header";
 

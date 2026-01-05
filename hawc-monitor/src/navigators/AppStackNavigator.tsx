@@ -1,13 +1,12 @@
-// src/navigation/DashboardStackNavigator.tsx
-import React from "react";
+// src/navigation/AppStackNavigator.tsx
 import { createStackNavigator } from "@react-navigation/stack";
-import type { DashboardStackParams } from "./types";
+import type { AppStackParamsList } from "./types";
 import DashboardScreen from "../screens/DashboardScreen";
 import DeviceDetailScreen from "../screens/DeviceDetailScreen";
 import TicketDetailScreen from "../screens/TicketDetailScreen";
 import FullFloorMapScreen from "../screens/FullFloorMapScreen";
 
-const Stack = createStackNavigator<DashboardStackParams>();
+const Stack = createStackNavigator<AppStackParamsList>();
 
 export default function DashboardStackNavigator() {
   return (
