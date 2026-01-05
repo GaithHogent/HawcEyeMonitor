@@ -2,7 +2,8 @@
   "extends": "expo/tsconfig.base",
   "include": [
     "src",
-    "src/declarations.d.ts"
+    "src/declarations.d.ts",
+    "nativewind-env.d.ts"
   ],
   "compilerOptions": {
     "strict": true,

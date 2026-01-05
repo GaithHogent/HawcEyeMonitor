@@ -1,5 +1,5 @@
 // src/components/Root.tsx
-import "react-native-gesture-handler";
+//import "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import TabNavigator from "../navigators/TabNavigator";
@@ -8,6 +8,8 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "../config/firebase";
 import AuthStack from "../navigators/AuthStack";
 import * as SplashScreen from "expo-splash-screen";
+
+import "../../global.css";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,6 +42,7 @@ const Root = () => {
     <SafeAreaProvider>
       <NavigationContainer>
         {user ? <TabNavigator /> : <AuthStack />}
+        {/*<TabNavigator />*/}
       </NavigationContainer>
     </SafeAreaProvider>
   );
