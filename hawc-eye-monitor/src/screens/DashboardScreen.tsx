@@ -6,10 +6,10 @@ import Header from "../components/Header";
 
 export default function DashboardScreen() {
   const images = [
-    require("../../assets/hawc1.png"),
-    require("../../assets/hawc2.png"),
-    require("../../assets/hawc3.png"),
-    require("../../assets/hawc4.png"),
+    require("../../assets/company-images/hawc1.png"),
+    require("../../assets/company-images/hawc2.png"),
+    require("../../assets/company-images/hawc3.png"),
+    require("../../assets/company-images/hawc4.png"),
   ];
 
   const stats = [

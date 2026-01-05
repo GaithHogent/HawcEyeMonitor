@@ -79,7 +79,7 @@ export default function LoginScreen() {
                 className="w-[350px] h-[350px]"
                 resizeMode="contain"
               />
-              <MyText className="text-3xl font-bold mt-4">Welcome Back</MyText>
+              <MyText className="text-3xl font-bold mt-4">Welcome</MyText>
               <MyText className="text-gray-500">Login to continue</MyText>
             </View>
 

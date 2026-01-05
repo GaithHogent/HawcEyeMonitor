@@ -8,7 +8,7 @@ export default function MyText({ className, children, ...rest }: MyTextProps) {
   return (
     <Text
       {...rest}
-      className={`text-gray-900 font-[Poppins-Regular] ${className || ''}`}
+      className={`text-gray-900 ${className || ''}`}
     >
       {children}
     </Text>

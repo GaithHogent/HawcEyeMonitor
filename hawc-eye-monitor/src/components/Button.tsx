@@ -18,7 +18,7 @@ export default function Button({ label, onPress, variant = 'primary' }: ButtonPr
       activeOpacity={0.7}
     >
       <Text
-        className={`font-[HandleeRegular] text-2xl ${
+        className={`text-2xl ${
           isPrimary ? 'text-white' : 'text-gray-700'
         }`}
       >

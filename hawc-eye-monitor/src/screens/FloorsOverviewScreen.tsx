@@ -11,20 +11,20 @@ export default function FloorsOverviewScreen() {
   {
     id: "1",
     title: "Floor 1",
-    image: require("../../assets/floor1.png"), // thumbnail
-    svg: require("../../assets/floors/floor1.svg"),   // full map
+    image: require("../../assets/floors/thumbnail/floor1.png"), // thumbnail
+    svg: require("../../assets/floors/full/floor1.svg"),   // full map
   },
   {
     id: "2",
     title: "Floor 2",
-    image: require("../../assets/floor2.png"),
-    svg: require("../../assets/floors/floor2.svg"),
+    image: require("../../assets/floors/thumbnail/floor2.png"),
+    svg: require("../../assets/floors/full/floor2.svg"),
   },
   {
     id: "3",
     title: "Floor 3",
-    image: require("../../assets/floor3.png"),
-    svg: require("../../assets/floors/floor3.svg"),
+    image: require("../../assets/floors/thumbnail/floor3.png"),
+    svg: require("../../assets/floors/full/floor3.svg"),
   },
 ];
 
