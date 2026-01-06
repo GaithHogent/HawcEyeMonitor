@@ -41,8 +41,8 @@ const Root = () => {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        {user ? <TabNavigator /> : <AuthStack />}
-        {/*<TabNavigator />*/}
+       {/* {user ? <TabNavigator /> : <AuthStack />}*/}
+        {<TabNavigator />}
       </NavigationContainer>
     </SafeAreaProvider>
   );

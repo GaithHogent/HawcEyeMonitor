@@ -1,63 +1,83 @@
-<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+<svg width="590" height="900" viewBox="0 0 760 1160" xmlns="http://www.w3.org/2000/svg">
+  <!-- مجموعة تحتوي على كامل المخطط مع تدوير المحور (تحويل من أفقي إلى عمودي) -->
+    
+    <!-- الإطار الخارجي للمخطط (حدود الطابق بالكامل) -->
+    <rect id="boundary" fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="0" y="0" width="760" height="1160"/>
+    
+    <!-- مجموعة تمثل الممر الرئيسي -->
+    <g id="corridor">
+      <!-- شكل الممر -->
+      <rect fill="#eef2f7" stroke="#1a1f36" stroke-width="2" x="340" y="40" width="120" height="1080" rx="6"/>
+      <!-- نص عنوان الممر -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="405" y="580" text-anchor="middle" style="white-space: pre;">Corridor</text>
+    </g>
 
-  <!-- حدود خارجية -->
-  <rect id="boundary" fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="20" y="20" width="1160" height="760" fill="none"/>
-
-  <!-- الممر -->
-  <g id="corridor">
-    <rect fill="#eef2f7" stroke="#1a1f36" stroke-width="2" x="60" y="340" width="1080" height="120" rx="6"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="600" y="405" text-anchor="middle">Corridor</text>
-  </g>
-
-  <!-- غرفة اجتماعات A (كبيرة) -->
-  <g id="meeting-a">
-    <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="60" y="60" width="520" height="260" rx="8"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="320" y="190" text-anchor="middle">Meeting Room A</text>
-    <!-- بوابة الغرفة نحو الممر: أسفل الغرفة -->
-    <rect fill="#1a1f36" x="530" y="320" width="24" height="20"/>
-  </g>
-
-  <!-- غرفة اجتماعات B (كبيرة) -->
-  <g id="meeting-b">
-    <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="620" y="60" width="520" height="260" rx="8"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="880" y="190" text-anchor="middle">Meeting Room B</text>
-    <!-- بوابة الغرفة نحو الممر: أسفل الغرفة -->
-    <rect fill="#1a1f36" x="650" y="320" width="24" height="20"/>
-  </g>
-
-  <!-- ثلاث غرف عادية -->
-  <g id="office-101">
-    <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="60" y="460" width="350" height="220" rx="8"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="220" y="570" text-anchor="middle">Room 101</text>
-    <!-- بوابة الغرفة نحو الممر: أعلى الغرفة -->
-    <rect fill="#1a1f36" x="370" y="440" width="24" height="20"/>
-  </g>
-
-  <g id="office-102">
-    <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="420" y="460" width="350" height="220" rx="8"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="580" y="570" text-anchor="middle">Room 102</text>
-    <!-- بوابة الغرفة نحو الممر: أعلى الغرفة -->
-    <rect fill="#1a1f36" x="430" y="440" width="24" height="20"/>
-  </g>
-
-  <g id="office-103">
-    <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="780" y="460" width="360" height="220" rx="8"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="940" y="570" text-anchor="middle">Room 103</text>
-    <!-- بوابة الغرفة نحو الممر: أعلى الغرفة -->
-    <rect fill="#1a1f36" x="790" y="440" width="24" height="20"/>
-  </g>
-
-  <!-- دورة مياه بجانب الممر -->
-  <g id="restroom">
-    <rect fill="#f7f0e6" stroke="#1a1f36" stroke-width="2" x="60" y="340" width="160" height="120" rx="6"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="140" y="405" text-anchor="middle">WC</text>
-    <!-- بوابة الحمام نحو الممر: يمين الحمام -->
-    <rect fill="#1a1f36" x="220" y="430" width="24" height="20"/>
-  </g>
-
-  <!-- السلم متصل بالممر -->
-  <g id="stairs">
-    <rect fill="#dde6f7" stroke="#1a1f36" stroke-width="2" x="980" y="340" width="160" height="120" rx="6"/>
-    <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="1060" y="405" text-anchor="middle">Stairs</text>
-  </g>
+    <!-- غرفة الاجتماعات E -->
+    <g id="meeting-e">
+      <!-- مساحة الغرفة -->
+      <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="60" y="600" width="260" height="520" rx="8"/>
+      <!-- نص اسم الغرفة -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="190" y="860" text-anchor="middle" style="white-space: pre;">Meeting Room E</text>
+      <!-- مؤشر باب أو مدخل الغرفة -->
+      <rect fill="#1a1f36" x="320" y="626" width="20" height="24"/>
+    </g>
+    
+    <!-- غرفة الاجتماعات F -->
+    <g id="meeting-f">
+      <!-- مساحة الغرفة -->
+      <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="60" y="40" width="260" height="520" rx="8"/>
+      <!-- نص اسم الغرفة -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="190" y="300" text-anchor="middle" style="white-space: pre;">Meeting Room F</text>
+      <!-- مؤشر باب أو مدخل الغرفة -->
+      <rect fill="#1a1f36" x="320" y="506" width="20" height="24"/>
+    </g>
+    
+    <!-- مكتب / غرفة رقم 301 -->
+    <g id="office-301">
+      <!-- مساحة الغرفة -->
+      <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="460" y="770" width="220" height="350" rx="8"/>
+      <!-- نص اسم الغرفة -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="570" y="960" text-anchor="middle" style="white-space: pre;">Room 301</text>
+      <!-- مؤشر باب الغرفة -->
+      <rect fill="#1a1f36" x="440" y="786" width="20" height="24"/>
+    </g>
+    
+    <!-- مكتب / غرفة رقم 302 -->
+    <g id="office-302">
+      <!-- مساحة الغرفة -->
+      <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="460" y="410" width="220" height="350" rx="8"/>
+      <!-- نص اسم الغرفة -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="570" y="600" text-anchor="middle" style="white-space: pre;">Room 302</text>
+      <!-- مؤشر باب الغرفة -->
+      <rect fill="#1a1f36" x="440" y="726" width="20" height="24"/>
+    </g>
+    
+    <!-- مكتب / غرفة رقم 303 -->
+    <g id="office-303">
+      <!-- مساحة الغرفة -->
+      <rect fill="#f9fbff" stroke="#1a1f36" stroke-width="2" x="460" y="40" width="220" height="360" rx="8"/>
+      <!-- نص اسم الغرفة -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="570" y="240" text-anchor="middle" style="white-space: pre;">Room 303</text>
+      <!-- مؤشر باب الغرفة -->
+      <rect fill="#1a1f36" x="440" y="366" width="20" height="24"/>
+    </g>
+    
+    <!-- دورة المياه -->
+    <g id="restroom">
+      <!-- مساحة الحمام -->
+      <rect fill="#f7f0e6" stroke="#1a1f36" stroke-width="2" x="340" y="960" width="120" height="160" rx="6"/>
+      <!-- نص توضيحي للحمام -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="405" y="1040" text-anchor="middle" style="white-space: pre;">WC</text>
+      <!-- مؤشر باب الحمام -->
+      <rect fill="#1a1f36" x="430" y="936" width="20" height="24"/>
+    </g>
+    
+    <!-- منطقة السلالم -->
+    <g id="stairs">
+      <!-- مساحة السلالم -->
+      <rect fill="#dde6f7" stroke="#1a1f36" stroke-width="2" x="340" y="40" width="120" height="160" rx="6"/>
+      <!-- نص توضيحي للسلالم -->
+      <text font-family="Arial, Helvetica, sans-serif" font-size="20px" fill="#1a1f36" x="405" y="120" text-anchor="middle" style="white-space: pre;">Stairs</text>
+    </g>
+    
 </svg>

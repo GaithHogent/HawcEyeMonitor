@@ -7,7 +7,7 @@ import * as FileSystem from "expo-file-system/legacy";
 
 import SvgMapViewer from "../components/full-floor-map-screen/SvgMapViewer";
 
-type Params = { floorId: string; svgPath: any }; // svgPath = require(".../floor1.svg")
+type Params = { floorId: string; svgPath: any };
 
 export default function FullFloorMapScreen() {
   const { params } = useRoute<any>();
