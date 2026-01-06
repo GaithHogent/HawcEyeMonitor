@@ -28,7 +28,7 @@ export type AppStackParamsList = {
   Dashboard: undefined;
   DeviceDetail: { id: string };
   TicketDetail: { id: string };
-  FullFloorMap: { floorId: string; svgPath: string };
+  FullFloorMap: { floorId: string };
 };
 export type AppStackNavProps<T extends keyof AppStackParamsList> =
   StackScreenProps<AppStackParamsList, T>;
@@ -36,7 +36,7 @@ export type AppStackNavProps<T extends keyof AppStackParamsList> =
 // Map Stack
   export type MapStackParamsList = {
     FloorsOverview: undefined;
-    FullFloorMap: { floorId: string; svgPath: any };
+    FullFloorMap: { floorId: string };
   };
   export type MapStackNavProps<T extends keyof MapStackParamsList> =
   StackScreenProps<MapStackParamsList, T>;

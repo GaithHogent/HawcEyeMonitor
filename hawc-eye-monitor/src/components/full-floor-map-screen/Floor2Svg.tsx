@@ -5,7 +5,8 @@ type Props = {
   onRoomPress?: (id: string) => void;
 };
 
-export const FLOOR1_ZOOM_MAP: Record<string, { x: number; y: number; s: number }> = {
+
+export const FLOOR2_ZOOM_MAP: Record<string, { x: number; y: number; s: number }> = {
   "meeting-a": { x: 190,  y: -350, s: 2.2 },
   "meeting-b": { x: 190,  y:  350, s: 2.2 },
   "office-101": { x: -190, y: -365, s: 2.2 },
@@ -16,7 +17,7 @@ export const FLOOR1_ZOOM_MAP: Record<string, { x: number; y: number; s: number }
 };
 
 
-export default function Floor1Svg({ onRoomPress }: Props) {
+export default function Floor2Svg({ onRoomPress }: Props) {
   return (
     <Svg viewBox="0 0 760 1160" width="100%" height="100%">
       
@@ -56,8 +57,8 @@ export default function Floor1Svg({ onRoomPress }: Props) {
         </Text>
       </G>
 
-      {/* Meeting Room A */}
-      <G id="meeting-a" onPress={() => onRoomPress?.("meeting-a")}>
+      {/* Meeting Room C */}
+      <G id="meeting-c" onPress={() => onRoomPress?.("meeting-c")}>
         <Rect
           fill="#f9fbff"
           stroke="#1a1f36"
@@ -76,13 +77,13 @@ export default function Floor1Svg({ onRoomPress }: Props) {
           y={860}
           textAnchor="middle"
         >
-          Meeting Room A
+          Meeting Room C
         </Text>
         <Rect fill="#1a1f36" x={320} y={626} width={20} height={24} />
       </G>
 
-      {/* Meeting Room B */}
-      <G id="meeting-b" onPress={() => onRoomPress?.("meeting-b")}>
+      {/* Meeting Room D */}
+      <G id="meeting-d" onPress={() => onRoomPress?.("meeting-d")}>
         <Rect
           fill="#f9fbff"
           stroke="#1a1f36"
@@ -101,13 +102,13 @@ export default function Floor1Svg({ onRoomPress }: Props) {
           y={300}
           textAnchor="middle"
         >
-          Meeting Room B
+          Meeting Room D
         </Text>
         <Rect fill="#1a1f36" x={320} y={506} width={20} height={24} />
       </G>
 
-      {/* Room 101 */}
-      <G id="office-101" onPress={() => onRoomPress?.("office-101")}>
+      {/* Room 201 */}
+      <G id="office-201" onPress={() => onRoomPress?.("office-201")}>
         <Rect
           fill="#f9fbff"
           stroke="#1a1f36"
@@ -126,13 +127,13 @@ export default function Floor1Svg({ onRoomPress }: Props) {
           y={960}
           textAnchor="middle"
         >
-          Room 101
+          Room 201
         </Text>
         <Rect fill="#1a1f36" x={440} y={786} width={20} height={24} />
       </G>
 
-      {/* Room 102 */}
-      <G id="office-102" onPress={() => onRoomPress?.("office-102")}>
+      {/* Room 202 */}
+      <G id="office-202" onPress={() => onRoomPress?.("office-202")}>
         <Rect
           fill="#f9fbff"
           stroke="#1a1f36"
@@ -151,13 +152,13 @@ export default function Floor1Svg({ onRoomPress }: Props) {
           y={600}
           textAnchor="middle"
         >
-          Room 102
+          Room 202
         </Text>
         <Rect fill="#1a1f36" x={440} y={726} width={20} height={24} />
       </G>
 
-      {/* Room 103 */}
-      <G id="office-103" onPress={() => onRoomPress?.("office-103")}>
+      {/* Room 203 */}
+      <G id="office-203" onPress={() => onRoomPress?.("office-203")}>
         <Rect
           fill="#f9fbff"
           stroke="#1a1f36"
@@ -176,7 +177,7 @@ export default function Floor1Svg({ onRoomPress }: Props) {
           y={240}
           textAnchor="middle"
         >
-          Room 103
+          Room 203
         </Text>
         <Rect fill="#1a1f36" x={440} y={366} width={20} height={24} />
       </G>
