@@ -33,6 +33,7 @@
     "react-native-svg": "15.12.1",
     "react-native-svg-transformer": "^1.5.1",
     "react-native-worklets": "0.5.1",
+    "react-native-zoom-reanimated": "^1.4.10",
     "yup": "^1.7.1"
   },
   "devDependencies": {

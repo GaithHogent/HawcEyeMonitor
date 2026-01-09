@@ -1,3 +1,4 @@
+// babel.config.js
 module.exports = function (api) {
   api.cache(true);
   return {
@@ -5,6 +6,7 @@ module.exports = function (api) {
       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
       "nativewind/babel",
     ],
-    plugins: ["react-native-reanimated/plugin"],
+    // مع Expo SDK 54 غالباً ما تحتاج تضيف أي plugin لـ Reanimated لأن babel-preset-expo يسويه تلقائياً
+    plugins: [],
   };
 };
