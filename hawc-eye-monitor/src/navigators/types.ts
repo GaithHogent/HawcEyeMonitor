@@ -1,6 +1,7 @@
 // src/navigators/types.ts
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { DeviceItem } from "../types/device";
 
 // =============================================================================
 // Auth Stack
@@ -37,9 +38,19 @@ export type AppStackNavProps<T extends keyof AppStackParamsList> =
   export type MapStackParamsList = {
     FloorsOverview: undefined;
     FullFloorMap: { floorId: string };
+    Room: { floorId: string; roomId: string };
   };
   export type MapStackNavProps<T extends keyof MapStackParamsList> =
   StackScreenProps<MapStackParamsList, T>;
+// =============================================================================
+// Devices Stack
+export type DevicesStackParamsList = {
+  DevicesList: undefined;
+  DeviceDetail: { device: DeviceItem };
+  DeviceForm: { device: DeviceItem } | undefined;
+};
+export type DevicesStackNavProps<T extends keyof DevicesStackParamsList> =
+  StackScreenProps<DevicesStackParamsList, T>;
 // =============================================================================
 // React Navigation Global Param List
 declare global {
@@ -48,6 +59,7 @@ declare global {
       extends AppStackParamsList,
         AuthStackParamList,
         MapStackParamsList,
+        DevicesStackParamsList,
       TabParamsList { }
   }
 }

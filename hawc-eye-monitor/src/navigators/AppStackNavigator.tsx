@@ -2,7 +2,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import type { AppStackParamsList } from "./types";
 import DashboardScreen from "../screens/DashboardScreen";
-import DeviceDetailScreen from "../screens/DeviceDetailScreen";
+import DeviceDetailScreen from "../screens/devices/DeviceDetailScreen";
 import TicketDetailScreen from "../screens/TicketDetailScreen";
 import FullFloorMapScreen from "../screens/FullFloorMapScreen";
 

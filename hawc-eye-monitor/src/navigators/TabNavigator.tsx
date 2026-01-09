@@ -5,7 +5,7 @@ import type { TabParamsList } from "./types";
 
 import DashboardStackNavigator from "./AppStackNavigator";
 import MapStackNavigator from "./MapStackNavigator";
-import DevicesListScreen from "../screens/DevicesListScreen";
+import DevicesStackNavigator from "./DevicesStackNavigator";
 import AlertsCenterScreen from "../screens/AlertsCenterScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -45,7 +45,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Devices"
-        component={DevicesListScreen}
+        component={DevicesStackNavigator}
         options={{
           tabBarLabel: "Devices",
           tabBarIcon: ({ color, size }) => (

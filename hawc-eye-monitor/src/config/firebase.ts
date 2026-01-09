@@ -25,10 +25,10 @@ export const db = getFirestore(app);
 // -------------------
 // Emulator connections
 // -------------------
-import { connectFirestoreEmulator } from "firebase/firestore";
-import { connectAuthEmulator } from "firebase/auth";
+// import { connectFirestoreEmulator } from "firebase/firestore";
+// import { connectAuthEmulator } from "firebase/auth";
 
-if (__DEV__) {
-  connectFirestoreEmulator(db, "10.0.2.2", 8086);
-  connectAuthEmulator(auth, "http://10.0.2.2:9100");
-}
+// if (__DEV__) {
+//   connectFirestoreEmulator(db, "10.0.2.2", 8086);
+//   connectAuthEmulator(auth, "http://10.0.2.2:9100");
+// }
