@@ -7,12 +7,17 @@ import {
   onSnapshot,
   orderBy,
   query,
-  updateDoc,
+  serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
 import type { DeviceDoc, DeviceItem } from "../types/device";
 
 const DEVICES_COL = "devices";
+
+const getCurrentUserName = () => {
+  return auth.currentUser?.displayName || auth.currentUser?.email || "system";
+};
 
 export const subscribeDevices = (onChange: (items: DeviceItem[]) => void) => {
   const q = query(collection(db, DEVICES_COL), orderBy("name", "asc"));
@@ -26,14 +31,42 @@ export const subscribeDevices = (onChange: (items: DeviceItem[]) => void) => {
 };
 
 export const createDevice = async (data: DeviceDoc) => {
-  const ref = await addDoc(collection(db, DEVICES_COL), data);
+  const ref = await addDoc(collection(db, DEVICES_COL), {
+    ...data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    updatedBy: getCurrentUserName(),
+  });
   return ref.id;
 };
 
 export const updateDevice = async (id: string, data: Partial<DeviceDoc>) => {
-  await updateDoc(doc(db, DEVICES_COL, id), data);
+  await setDoc(
+    doc(db, DEVICES_COL, id),
+    {
+      ...data,
+      updatedAt: serverTimestamp(),
+      updatedBy: getCurrentUserName(),
+    },
+    { merge: true }
+  );
 };
 
 export const removeDevice = async (id: string) => {
   await deleteDoc(doc(db, DEVICES_COL, id));
+};
+
+// NEW: subscribe to a single device (live updates)
+export const subscribeDevice = (
+  id: string,
+  onChange: (item: DeviceItem | null) => void
+) => {
+  const ref = doc(db, DEVICES_COL, id);
+  return onSnapshot(ref, (snap) => {
+    if (!snap.exists()) {
+      onChange(null);
+      return;
+    }
+    onChange({ id: snap.id, ...(snap.data() as DeviceDoc) });
+  });
 };

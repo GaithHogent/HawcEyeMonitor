@@ -1,20 +1,28 @@
 // src/screens/devices/DeviceDetailScreen.tsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, Alert, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
 import type { DeviceItem } from "../../types/device";
-import { removeDevice } from "../../services/devices.service";
+import { removeDevice, subscribeDevice } from "../../services/devices.service";
 
 type R = RouteProp<DevicesStackParamsList, "DeviceDetail">;
 
-export default function DeviceDetailScreen() {
+const DeviceDetailScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"DeviceDetail">["navigation"]>();
   const route = useRoute<R>();
-  const device = route.params.device as DeviceItem;
+  const initialDevice = route.params.device as DeviceItem;
 
+  const [device, setDevice] = useState<DeviceItem>(initialDevice);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const unsub = subscribeDevice(initialDevice.id, (item) => {
+      if (item) setDevice(item);
+    });
+    return unsub;
+  }, [initialDevice.id]);
 
   const location = useMemo(() => {
     const parts: string[] = [];
@@ -23,6 +31,12 @@ export default function DeviceDetailScreen() {
     if (device.x !== undefined && device.y !== undefined) parts.push(`x:${device.x}, y:${device.y}`);
     return parts.join(" • ");
   }, [device]);
+
+  const formatDate = (d?: any) => {
+    if (!d) return "—";
+    if (typeof d.toDate === "function") return d.toDate().toLocaleString();
+    return String(d);
+  };
 
   const onDelete = () => {
     Alert.alert(
@@ -50,6 +64,7 @@ export default function DeviceDetailScreen() {
   return (
     <View className="flex-1 bg-white p-4">
       <View className="rounded-2xl border border-gray-200 p-4">
+        {/* name هو الوصف الآن */}
         <Text className="text-xl font-bold text-gray-900">{device.name}</Text>
         <Text className="mt-1 text-sm text-gray-700">{device.type}</Text>
 
@@ -58,19 +73,27 @@ export default function DeviceDetailScreen() {
           <Text className="text-sm text-gray-900">{device.status}</Text>
         </View>
 
-        {!!device.description && (
-          <View className="mt-3">
-            <Text className="text-xs text-gray-500">Description</Text>
-            <Text className="text-sm text-gray-900">{device.description}</Text>
-          </View>
-        )}
-
         {!!location && (
           <View className="mt-3">
             <Text className="text-xs text-gray-500">Location</Text>
             <Text className="text-sm text-gray-900">{location}</Text>
           </View>
         )}
+
+        <View className="mt-3">
+          <Text className="text-xs text-gray-500">Created At</Text>
+          <Text className="text-sm text-gray-900">{formatDate(device.createdAt)}</Text>
+        </View>
+
+        <View className="mt-3">
+          <Text className="text-xs text-gray-500">Last Updated At</Text>
+          <Text className="text-sm text-gray-900">{formatDate(device.updatedAt)}</Text>
+        </View>
+
+        <View className="mt-3">
+          <Text className="text-xs text-gray-500">Last Updated By</Text>
+          <Text className="text-sm text-gray-900">{device.updatedBy ?? "—"}</Text>
+        </View>
 
         {device.status === "issue" && (
           <View className="mt-4 rounded-xl bg-red-50 p-3">
@@ -102,3 +125,4 @@ export default function DeviceDetailScreen() {
     </View>
   );
 }
+export default DeviceDetailScreen;

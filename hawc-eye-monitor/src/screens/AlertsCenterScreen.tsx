@@ -7,7 +7,7 @@ const ALERTS = [
   { id: "2", title: "Sensor offline", floor: "1", time: "09:58 AM" },
 ];
 
-export default function AlertsCenterScreen() {
+const AlertsCenterScreen = () => {
   const renderItem = ({ item }: any) => (
     <View style={styles.item}>
       <Text style={[styles.itemTitle, { color: "#ef4444" }]}>{item.title}</Text>
@@ -33,3 +33,4 @@ const styles = StyleSheet.create({
   itemTitle: { fontWeight: "700" },
   itemSub: { marginTop: 6, fontSize: 12, color: "#6b7280" },
 });
+export default AlertsCenterScreen;

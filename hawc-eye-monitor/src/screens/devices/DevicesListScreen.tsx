@@ -5,8 +5,11 @@ import { useNavigation } from "@react-navigation/native";
 import type { DevicesStackNavProps } from "../../navigators/types";
 import type { DeviceItem } from "../../types/device";
 import { subscribeDevices } from "../../services/devices.service";
+import { DEVICE_STATUSES } from "../../types/deviceStatuses";
+import Header from "../../components/Header";
+import DeviceListItem from "../../components/devices/DeviceListItem";
 
-export default function DevicesListScreen() {
+const DevicesListScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"DevicesList">["navigation"]>();
   const [devices, setDevices] = useState<DeviceItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,32 +32,47 @@ export default function DevicesListScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-gray-50 p-4">
+      <Header title="Devices" />
       <FlatList
-        data={devices}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 96 }}
+        data={DEVICE_STATUSES.map((s) => ({
+          key: s.key,
+          title: s.label,
+          data: devices.filter((d) => d.status === s.key),
+        }))}
+        keyExtractor={(item) => item.key}
+        contentContainerStyle={{ paddingBottom: 96 }}
         ListEmptyComponent={
           <View className="py-10 items-center">
             <Text className="text-gray-600">No devices yet.</Text>
           </View>
         }
         renderItem={({ item }) => (
-          <Pressable
-            onPress={() => navigation.navigate("DeviceDetail", { device: item })}
-            className="mb-3 rounded-xl border border-gray-200 bg-white p-4"
-          >
-            <View className="flex-row items-center justify-between">
-              <Text className="text-base font-semibold text-gray-900">{item.name}</Text>
-              <Text className="text-xs text-gray-500">{item.status}</Text>
+          <View className="mb-8">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-sm font-semibold text-gray-700">
+                {item.title}
+              </Text>
+              <Text className="text-xs text-gray-400">
+                {item.data.length}
+              </Text>
             </View>
 
-            <Text className="mt-1 text-sm text-gray-700">{item.type}</Text>
-
-            {!!item.description && (
-              <Text className="mt-2 text-sm text-gray-500">{item.description}</Text>
+            {item.data.length === 0 ? (
+              <View className="rounded-xl border border-dashed border-gray-200 p-4 items-center">
+                <Text className="text-xs text-gray-400">No devices in this category.</Text>
+              </View>
+            ) : (
+              item.data.map((device) => (
+                <View key={device.id}>
+                  <DeviceListItem
+                    device={device}
+                    onPress={() => navigation.navigate("DeviceDetail", { device })}
+                  />
+                </View>
+              ))
             )}
-          </Pressable>
+          </View>
         )}
       />
 
@@ -69,3 +87,4 @@ export default function DevicesListScreen() {
     </View>
   );
 }
+export default DevicesListScreen;

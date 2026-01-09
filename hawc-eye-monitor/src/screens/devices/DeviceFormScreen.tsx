@@ -1,131 +1,102 @@
-// src/screens/devices/DeviceFormScreen.tsx
-import { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
-import type { DeviceDoc, DeviceItem, DeviceStatus } from "../../types/device";
+import type { DeviceDoc, DeviceItem } from "../../types/device";
 import { createDevice, updateDevice } from "../../services/devices.service";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import DeviceTypeSelect from "../../components/devices/DeviceTypeSelect";
+import { DEVICE_STATUSES } from "../../types/deviceStatuses";
 
 type R = RouteProp<DevicesStackParamsList, "DeviceForm">;
 
-export default function DeviceFormScreen() {
+const Schema = Yup.object().shape({
+  description: Yup.string().trim().min(3, "Description is too short").required("Description is required"),
+  type: Yup.string().required("Device type is required"),
+});
+
+const DeviceFormScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"DeviceForm">["navigation"]>();
   const route = useRoute<R>();
 
   const editDevice = (route.params?.device as DeviceItem | undefined) ?? undefined;
   const isEdit = !!editDevice;
 
-  const [name, setName] = useState(editDevice?.name ?? "");
-  const [type, setType] = useState(editDevice?.type ?? "");
-  const [description, setDescription] = useState(editDevice?.description ?? "");
-  const [status, setStatus] = useState<DeviceStatus>(editDevice?.status ?? "active");
+  const initialValues = {
+    description: editDevice?.name ?? "", // name is used as description
+    type: editDevice?.type ?? "",
+  };
 
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!isEdit) return;
-    setName(editDevice?.name ?? "");
-    setType(editDevice?.type ?? "");
-    setDescription(editDevice?.description ?? "");
-    setStatus(editDevice?.status ?? "active");
-  }, [isEdit, editDevice]);
-
-  const canSave = useMemo(() => {
-    return name.trim().length > 0 && type.trim().length > 0;
-  }, [name, type]);
-
-  const onSave = async () => {
-    if (!canSave) return;
-
+  const onSubmit = async (values: typeof initialValues) => {
     const payload: DeviceDoc = {
-      name: name.trim(),
-      type: type.trim(),
-      status,
-      description: description.trim().length ? description.trim() : undefined,
+      name: values.description.trim(), // store description in name
+      type: values.type,
+      status: isEdit ? editDevice!.status : DEVICE_STATUSES.find(s => s.key === "inactive")!.key, // default from source
     };
 
-    try {
-      setSaving(true);
-
-      if (isEdit && editDevice) {
-        await updateDevice(editDevice.id, payload);
-        navigation.goBack();
-        return;
-      }
-
-      await createDevice(payload);
+    if (isEdit && editDevice) {
+      await updateDevice(editDevice.id, payload);
       navigation.goBack();
-    } finally {
-      setSaving(false);
+      return;
     }
+
+    await createDevice(payload);
+    navigation.goBack();
   };
 
   return (
     <View className="flex-1 bg-white p-4">
       <View className="rounded-2xl border border-gray-200 p-4">
-        <Text className="text-sm text-gray-600">Name</Text>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="e.g. Camera 1"
-          className="mt-2 h-11 rounded-xl border border-gray-200 px-3 text-gray-900"
-        />
-
-        <Text className="mt-4 text-sm text-gray-600">Type</Text>
-        <TextInput
-          value={type}
-          onChangeText={setType}
-          placeholder="e.g. camera"
-          className="mt-2 h-11 rounded-xl border border-gray-200 px-3 text-gray-900"
-        />
-
-        <Text className="mt-4 text-sm text-gray-600">Description (optional)</Text>
-        <TextInput
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Short description..."
-          className="mt-2 h-11 rounded-xl border border-gray-200 px-3 text-gray-900"
-        />
-
-        <Text className="mt-4 text-sm text-gray-600">Status</Text>
-        <View className="mt-2 flex-row gap-2">
-          {(["active", "inactive", "issue"] as const).map((s) => {
-            const selected = status === s;
-            return (
-              <Pressable
-                key={s}
-                onPress={() => setStatus(s)}
-                className={[
-                  "flex-1 h-11 rounded-xl items-center justify-center border",
-                  selected ? "bg-blue-600 border-blue-600" : "bg-white border-gray-200",
-                ].join(" ")}
-              >
-                <Text className={selected ? "text-white font-semibold" : "text-gray-800 font-semibold"}>
-                  {s}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-
-      <View className="mt-4">
-        <Pressable
-          onPress={onSave}
-          disabled={!canSave || saving}
-          className={[
-            "h-12 rounded-xl items-center justify-center",
-            !canSave || saving ? "bg-gray-300" : "bg-blue-600",
-          ].join(" ")}
+        <Formik
+          initialValues={initialValues}
+          validationSchema={Schema}
+          onSubmit={onSubmit}
         >
-          {saving ? (
-            <ActivityIndicator />
-          ) : (
-            <Text className="text-white font-semibold">{isEdit ? "Save Changes" : "Create Device"}</Text>
+          {({ handleChange, handleSubmit, values, errors, touched, setFieldValue, isSubmitting }) => (
+            <>
+              <Text className="text-sm text-gray-600">Description</Text>
+              <TextInput
+                value={values.description}
+                onChangeText={handleChange("description")}
+                placeholder="e.g. Camera at main entrance"
+                className="mt-2 h-11 rounded-xl border border-gray-200 px-3 text-gray-900"
+              />
+              {touched.description && errors.description ? (
+                <Text className="mt-1 text-sm text-red-600">{errors.description}</Text>
+              ) : null}
+
+              <Text className="mt-4 text-sm text-gray-600">Device Type</Text>
+              <DeviceTypeSelect
+                value={values.type}
+                onChange={(v) => setFieldValue("type", v)}
+                error={errors.type}
+                touched={touched.type}
+              />
+
+              <View className="mt-6">
+                <Pressable
+                  onPress={() => handleSubmit()}
+                  disabled={isSubmitting}
+                  className={[
+                    "h-12 rounded-xl items-center justify-center",
+                    isSubmitting ? "bg-gray-300" : "bg-blue-600",
+                  ].join(" ")}
+                >
+                  {isSubmitting ? (
+                    <ActivityIndicator />
+                  ) : (
+                    <Text className="text-white font-semibold">
+                      {isEdit ? "Save Changes" : "Create Device"}
+                    </Text>
+                  )}
+                </Pressable>
+              </View>
+            </>
           )}
-        </Pressable>
+        </Formik>
       </View>
     </View>
   );
 }
+export default DeviceFormScreen;
