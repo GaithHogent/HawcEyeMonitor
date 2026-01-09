@@ -8,28 +8,28 @@ import FullFloorMapScreen from "../screens/FullFloorMapScreen";
 
 const Stack = createStackNavigator<AppStackParamsList>();
 
-export default function DashboardStackNavigator() {
+const DashboardStackNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+    <Stack.Navigator screenOptions={{headerStatusBarHeight: 0, }}>
+      <Stack.Screen name="Dashboard" component={DashboardScreen} options={{headerShown:false}} />
       <Stack.Screen
         name="DeviceDetail"
         component={DeviceDetailScreen}
-        options={{ headerShown: true, title: "Device" }}
+        options={{ title: "Device" }}
       />
       <Stack.Screen
         name="TicketDetail"
         component={TicketDetailScreen}
-        options={{ headerShown: true, title: "Ticket" }}
+        options={{ title: "Ticket" }}
       />
       <Stack.Screen
         name="FullFloorMap"
         component={FullFloorMapScreen}
         options={({ route }) => ({
-          headerShown: true,
           title: `Floor ${route.params.floorId}`,
         })}
       />
     </Stack.Navigator>
   );
 }
+export default DashboardStackNavigator;

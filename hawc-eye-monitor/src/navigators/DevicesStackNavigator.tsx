@@ -1,4 +1,5 @@
 // src/navigators/DevicesStackNavigator.tsx
+
 import { createStackNavigator } from "@react-navigation/stack";
 import type { DevicesStackParamsList } from "./types";
 
@@ -11,12 +12,12 @@ const Stack = createStackNavigator<DevicesStackParamsList>();
 
 const DevicesStackNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerStatusBarHeight: 0, }}>
       <Stack.Screen
         name="DevicesList"
         component={DevicesListScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           title: "Devices",
         }}
       />
@@ -25,7 +26,6 @@ const DevicesStackNavigator = () => {
         name="DeviceDetail"
         component={DeviceDetailScreen}
         options={({ route }) => ({
-          headerShown: true,
           title: route.params?.device?.name ? String(route.params.device.name) : "Device",
         })}
       />
@@ -34,7 +34,6 @@ const DevicesStackNavigator = () => {
         name="DeviceForm"
         component={DeviceFormScreen}
         options={({ route }) => ({
-          headerShown: true,
           title: route.params?.device ? "Edit Device" : "Add Device",
         })}
       />

@@ -1,4 +1,3 @@
-// src/navigators/MapStackNavigator.tsx
 import { createStackNavigator } from "@react-navigation/stack";
 import type { MapStackParamsList } from "./types";
 
@@ -11,17 +10,17 @@ const Stack = createStackNavigator<MapStackParamsList>();
 
 const MapStackNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerStatusBarHeight: 0 }}>
       <Stack.Screen
         name="FloorsOverview"
         component={FloorsOverviewScreen}
+        options={{headerShown: false}}
       />
 
       <Stack.Screen
         name="FullFloorMap"
         component={FullFloorMapScreen}
         options={({ route }) => ({
-          headerShown: true,
           title: `Floor ${route.params.floorId}`,
         })}
       />
@@ -29,7 +28,6 @@ const MapStackNavigator = () => {
         name="Room"
         component={RoomScreen}
         options={({ route }) => ({
-          headerShown: true,
           title: `${route.params.roomId}`,
         })}
       />
