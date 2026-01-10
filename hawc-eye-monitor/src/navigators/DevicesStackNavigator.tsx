@@ -8,6 +8,7 @@ import DevicesListScreen from "../screens/devices/DevicesListScreen";
 import DeviceDetailScreen from "../screens/devices/DeviceDetailScreen";
 import DeviceFormScreen from "../screens/devices/DeviceFormScreen";
 import AlertsCenterScreen from "../screens/AlertsCenterScreen";
+import ReportIssueScreen from "../screens/devices/ReportIssueScreen";
 
 const Stack = createStackNavigator<DevicesStackParamsList>();
 
@@ -42,6 +43,12 @@ const DevicesStackNavigator = ({ initialRouteName }: { initialRouteName?: keyof 
         name="Alerts"
         component={AlertsCenterScreen}
         options={{headerShown: false}}
+      />
+
+      <Stack.Screen
+        name="ReportIssue"
+        component={ReportIssueScreen}
+        options={{ title: "Report Issue" }}
       />
     </Stack.Navigator>
   );

@@ -88,3 +88,23 @@ export const resolveDeviceIssue = async (id: string) => {
     { merge: true }
   );
 };
+
+export const reportDeviceIssue = async (
+  id: string,
+  issueType: string,
+  issueDescription: string
+) => {
+  await setDoc(
+    doc(db, DEVICES_COL, id),
+    {
+      status: "issue",
+      issueType,
+      issueDescription,
+      issueStartAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      updatedBy: getCurrentUserName(),
+    },
+    { merge: true }
+  );
+};
+

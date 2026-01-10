@@ -1,4 +1,4 @@
-// src/navigators/HawcTabNavigator.tsx
+// src/navigators/TabNavigator.tsx
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { TabParamsList } from "./types";
@@ -13,6 +13,10 @@ import { subscribeDevices } from "../services/devices.service";
 
 const Tab = createBottomTabNavigator<TabParamsList>();
 const PRIMARY = "#0d7ff2";
+
+const DevicesTab = () => <DevicesStackNavigator initialRouteName="DevicesList" />;
+
+const AlertsTab = () => <DevicesStackNavigator initialRouteName="Alerts" />;
 
 export default function TabNavigator() {
   const [alertsCount, setAlertsCount] = useState(0);
@@ -55,7 +59,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Devices"
-        component={() => <DevicesStackNavigator initialRouteName="DevicesList" />}
+        component={DevicesTab}
         options={{
           tabBarLabel: "Devices",
           tabBarIcon: ({ color, size }) => (
@@ -65,7 +69,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Alerts"
-        component={() => <DevicesStackNavigator initialRouteName="Alerts" />}
+        component={AlertsTab}
         options={{
           tabBarLabel: "Alerts",
           tabBarBadge: alertsCount > 0 ? alertsCount : undefined,

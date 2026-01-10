@@ -74,7 +74,11 @@ const DeviceDetailScreen = () => {
             try {
               setDeleting(true);
               await removeDevice(device.id);
-              navigation.goBack();
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                navigation.navigate("DevicesList");
+              }
             } finally {
               setDeleting(false);
             }
@@ -118,6 +122,20 @@ const DeviceDetailScreen = () => {
           <Text className="text-sm text-gray-900">{device.updatedBy ?? "—"}</Text>
         </View>
 
+        {!!device.resolvedBefore && (
+          <View className="mt-3">
+            <Text className="text-xs text-gray-500">Resolved Before</Text>
+            <Text className="text-sm text-gray-900">{String(device.resolvedBefore)}</Text>
+          </View>
+        )}
+
+        {!!device.resolvedAt && (
+          <View className="mt-3">
+            <Text className="text-xs text-gray-500">Resolved At</Text>
+            <Text className="text-sm text-gray-900">{formatDate(device.resolvedAt)}</Text>
+          </View>
+        )}
+
         {device.status === "issue" && (
           <View className="mt-4 rounded-xl bg-red-50 p-3">
             <Text className="text-sm font-semibold text-red-800">Issue</Text>
@@ -141,6 +159,15 @@ const DeviceDetailScreen = () => {
         >
           <Text className="text-white font-semibold">Edit</Text>
         </Pressable>
+
+        {(device.status === "active" || device.status === "inactive") && (
+          <Pressable
+            onPress={() => navigation.navigate("ReportIssue", { deviceId: device.id })}
+            className="flex-1 h-12 rounded-xl items-center justify-center bg-red-500"
+          >
+            <Text className="text-white font-semibold">Report Issue</Text>
+          </Pressable>
+        )}
 
         {device.status === "issue" && (
           <Pressable
