@@ -48,6 +48,7 @@ export type DevicesStackParamsList = {
   DevicesList: undefined;
   DeviceDetail: { device: DeviceItem };
   DeviceForm: { device: DeviceItem } | undefined;
+  Alerts: undefined;
 };
 export type DevicesStackNavProps<T extends keyof DevicesStackParamsList> =
   StackScreenProps<DevicesStackParamsList, T>;

@@ -45,7 +45,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Devices"
-        component={DevicesStackNavigator}
+        component={() => <DevicesStackNavigator initialRouteName="DevicesList" />}
         options={{
           tabBarLabel: "Devices",
           tabBarIcon: ({ color, size }) => (
@@ -55,7 +55,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Alerts"
-        component={AlertsCenterScreen}
+        component={() => <DevicesStackNavigator initialRouteName="Alerts" />}
         options={{
           tabBarLabel: "Alerts",
           tabBarIcon: ({ color, size }) => (

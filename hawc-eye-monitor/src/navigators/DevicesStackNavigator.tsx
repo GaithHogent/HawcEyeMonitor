@@ -7,18 +7,18 @@ import type { DevicesStackParamsList } from "./types";
 import DevicesListScreen from "../screens/devices/DevicesListScreen";
 import DeviceDetailScreen from "../screens/devices/DeviceDetailScreen";
 import DeviceFormScreen from "../screens/devices/DeviceFormScreen";
+import AlertsCenterScreen from "../screens/AlertsCenterScreen";
 
 const Stack = createStackNavigator<DevicesStackParamsList>();
 
-const DevicesStackNavigator = () => {
+const DevicesStackNavigator = ({ initialRouteName }: { initialRouteName?: keyof DevicesStackParamsList }) => {
   return (
-    <Stack.Navigator screenOptions={{ headerStatusBarHeight: 0, }}>
+    <Stack.Navigator initialRouteName={initialRouteName ?? "DevicesList"} screenOptions={{ headerStatusBarHeight: 0, }}>
       <Stack.Screen
         name="DevicesList"
         component={DevicesListScreen}
         options={{
-          headerShown: false,
-          title: "Devices",
+          headerShown: false
         }}
       />
 
@@ -36,6 +36,12 @@ const DevicesStackNavigator = () => {
         options={({ route }) => ({
           title: route.params?.device ? "Edit Device" : "Add Device",
         })}
+      />
+
+      <Stack.Screen
+        name="Alerts"
+        component={AlertsCenterScreen}
+        options={{headerShown: false}}
       />
     </Stack.Navigator>
   );
