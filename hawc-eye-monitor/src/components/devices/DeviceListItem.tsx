@@ -31,7 +31,7 @@ const DeviceListItem = ({ device, onPress }: Props) => {
               {device.name}
             </Text>
           </View>
-          <Text className="mt-1 text-sm text-gray-500">See more device details</Text>
+          <Text className="mt-1 text-sm text-gray-500">Press for more details</Text>
         </View>
 
         <View
