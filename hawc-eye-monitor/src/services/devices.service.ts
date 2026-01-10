@@ -9,6 +9,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  deleteField,
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
 import type { DeviceDoc, DeviceItem } from "../types/device";
@@ -69,4 +70,21 @@ export const subscribeDevice = (
     }
     onChange({ id: snap.id, ...(snap.data() as DeviceDoc) });
   });
+};
+
+export const resolveDeviceIssue = async (id: string) => {
+  await setDoc(
+    doc(db, DEVICES_COL, id),
+    {
+      status: "active",
+      issueType: deleteField(),
+      issueDescription: deleteField(),
+      issueStartAt: deleteField(),
+      resolvedBefore: true,
+      resolvedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      updatedBy: getCurrentUserName(),
+    },
+    { merge: true }
+  );
 };

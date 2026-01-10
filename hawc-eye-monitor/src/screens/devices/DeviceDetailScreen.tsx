@@ -5,7 +5,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
 import type { DeviceItem } from "../../types/device";
-import { removeDevice, subscribeDevice } from "../../services/devices.service";
+import { removeDevice, subscribeDevice, resolveDeviceIssue } from "../../services/devices.service";
 
 type R = RouteProp<DevicesStackParamsList, "DeviceDetail">;
 
@@ -16,6 +16,7 @@ const DeviceDetailScreen = () => {
 
   const [device, setDevice] = useState<DeviceItem>(initialDevice);
   const [deleting, setDeleting] = useState(false);
+  const [resolving, setResolving] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeDevice(initialDevice.id, (item) => {
@@ -36,6 +37,28 @@ const DeviceDetailScreen = () => {
     if (!d) return "—";
     if (typeof d.toDate === "function") return d.toDate().toLocaleString();
     return String(d);
+  };
+
+  const onResolve = () => {
+    Alert.alert(
+      "Resolve issue",
+      "Are you sure you want to mark this issue as resolved?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Resolve",
+          style: "default",
+          onPress: async () => {
+            try {
+              setResolving(true);
+              await resolveDeviceIssue(device.id);
+            } finally {
+              setResolving(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const onDelete = () => {
@@ -102,6 +125,11 @@ const DeviceDetailScreen = () => {
             {!!device.issueDescription && (
               <Text className="mt-1 text-sm text-red-700">{device.issueDescription}</Text>
             )}
+
+            <View className="mt-3">
+              <Text className="text-xs text-red-800">Issue Start At</Text>
+              <Text className="text-sm text-red-700">{formatDate(device.issueStartAt)}</Text>
+            </View>
           </View>
         )}
       </View>
@@ -113,6 +141,16 @@ const DeviceDetailScreen = () => {
         >
           <Text className="text-white font-semibold">Edit</Text>
         </Pressable>
+
+        {device.status === "issue" && (
+          <Pressable
+            onPress={onResolve}
+            disabled={resolving}
+            className="flex-1 h-12 rounded-xl items-center justify-center bg-green-600"
+          >
+            {resolving ? <ActivityIndicator /> : <Text className="text-white font-semibold">Resolved</Text>}
+          </Pressable>
+        )}
 
         <Pressable
           onPress={onDelete}

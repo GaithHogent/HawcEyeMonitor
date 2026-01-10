@@ -23,6 +23,10 @@ export type DeviceDoc = {
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   updatedBy?: string;
+
+  // resolve fields (auto-generated)
+  resolvedBefore?: boolean;
+  resolvedAt?: Timestamp;
 };
 
 export type DeviceItem = DeviceDoc & { id: string };
