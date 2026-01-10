@@ -6,14 +6,24 @@ import type { TabParamsList } from "./types";
 import DashboardStackNavigator from "./AppStackNavigator";
 import MapStackNavigator from "./MapStackNavigator";
 import DevicesStackNavigator from "./DevicesStackNavigator";
-import AlertsCenterScreen from "../screens/AlertsCenterScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
+import { subscribeDevices } from "../services/devices.service";
 
 const Tab = createBottomTabNavigator<TabParamsList>();
 const PRIMARY = "#0d7ff2";
 
 export default function TabNavigator() {
+  const [alertsCount, setAlertsCount] = useState(0);
+
+  useEffect(() => {
+    const unsub = subscribeDevices((items) => {
+      setAlertsCount(items.filter((d) => d.status === "issue").length);
+    });
+    return unsub;
+  }, []);
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
     <Tab.Navigator
@@ -58,6 +68,7 @@ export default function TabNavigator() {
         component={() => <DevicesStackNavigator initialRouteName="Alerts" />}
         options={{
           tabBarLabel: "Alerts",
+          tabBarBadge: alertsCount > 0 ? alertsCount : undefined,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="alert-decagram" color={color} size={size} />
           ),
