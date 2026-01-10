@@ -171,10 +171,17 @@ const RoomScreen = () => {
   const [toolContentW, setToolContentW] = useState(0);
   const [toolScrollX, setToolScrollX] = useState(0);
 
+  // ✅ custom scrollbar (track width)
+  const [toolIndicatorW, setToolIndicatorW] = useState(0);
+
   const canScrollToolbar = toolContentW > toolScrollW + 1;
   const toolMaxX = Math.max(0, toolContentW - toolScrollW);
-  const atToolbarEnd = toolScrollX >= toolMaxX - 1;
-  const showToolbarScrollHint = canScrollToolbar && !atToolbarEnd;
+
+  // ✅ thumb sizing/position
+  const toolVisibleRatio = toolContentW > 0 ? toolScrollW / toolContentW : 1;
+  const toolThumbW = Math.max(26, toolIndicatorW * Math.min(1, toolVisibleRatio));
+  const toolThumbMaxX = Math.max(0, toolIndicatorW - toolThumbW);
+  const toolThumbX = toolMaxX > 0 ? (toolScrollX / toolMaxX) * toolThumbMaxX : 0;
 
   // ✅ blur listener
   useEffect(() => {
@@ -263,7 +270,7 @@ const RoomScreen = () => {
     const y = contentH * marginTop.value;
     const h = contentH * (1 - marginTop.value - marginBottom.value);
 
-    return { x, y, w, h };
+    return { x, y, w, h, };
   };
 
   const mapToDeviceType = (t: string): DeviceType => {
@@ -296,7 +303,6 @@ const RoomScreen = () => {
         const name = d?.name ? String(d.name) : undefined;
         const typeRaw = d?.type ? String(d.type) : undefined;
 
-        
         const status = String(d?.status ?? "").toLowerCase().trim();
 
         map[docSnap.id] = { name, typeRaw, status };
@@ -723,8 +729,23 @@ const RoomScreen = () => {
               ))}
           </ScrollView>
 
-          <View pointerEvents="none" style={[styles.toolbarScrollHintWrap, !showToolbarScrollHint && styles.hidden]}>
-            <View style={styles.toolbarScrollHint} />
+          {/* ✅ Custom horizontal scrollbar (same design) */}
+          <View
+            pointerEvents="none"
+            style={[styles.toolbarIndicatorWrap, !canScrollToolbar && styles.hidden]}
+            onLayout={(e) => setToolIndicatorW(e.nativeEvent.layout.width)}
+          >
+            <View style={styles.toolbarIndicatorTrack}>
+              <View
+                style={[
+                  styles.toolbarIndicatorThumb,
+                  {
+                    width: toolThumbW,
+                    transform: [{ translateX: toolThumbX }],
+                  },
+                ]}
+              />
+            </View>
           </View>
 
           <Pressable
@@ -804,7 +825,11 @@ const RoomScreen = () => {
 
             <View style={styles.modalActions}>
               <Button label="Edit" onPress={onEditSelected} variant="outline" disabled={deleting} />
-              <Button label={deleting ? "Removing..." : "Remove form this room"} onPress={onDeleteSelected} disabled={deleting} />
+              <Button
+                label={deleting ? "Removing..." : "Remove form this room"}
+                onPress={onDeleteSelected}
+                disabled={deleting}
+              />
             </View>
           </Pressable>
         </Pressable>
@@ -880,21 +905,29 @@ const styles = StyleSheet.create({
     height: TOOLBAR_H,
     paddingRight: 6,
   },
-  toolbarScrollHintWrap: {
+
+  // ✅ NEW: full-length custom scrollbar
+  toolbarIndicatorWrap: {
     position: "absolute",
     left: 12,
     right: 62,
     bottom: 5,
-    alignItems: "center",
+    height: 6,
     justifyContent: "center",
   },
-  toolbarScrollHint: {
-    width: 34,
-    height: 3,
+  toolbarIndicatorTrack: {
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: "#e5e7eb",
+    overflow: "hidden",
+  },
+  toolbarIndicatorThumb: {
+    height: 4,
     borderRadius: 999,
     backgroundColor: "#93c5fd",
-    opacity: 0.65,
+    opacity: 0.85,
   },
+
   hidden: { opacity: 0 },
 
   toolBtn: {
