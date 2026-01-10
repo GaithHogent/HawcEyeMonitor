@@ -12,7 +12,7 @@ type Props = {
 
 const DeviceListItem = ({ device, onPress }: Props) => {
   const statusDef = DEVICE_STATUSES.find((s) => s.key === device.status);
-  const typeDef = DEVICE_TYPES.find((t) => t.key === device.type);
+  const typeDef = DEVICE_TYPES.find((t) => t.label === device.type);
 
   return (
     <Pressable

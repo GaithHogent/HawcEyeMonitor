@@ -13,12 +13,12 @@ type Props = {
 
 export default function DeviceTypeSelect({ value, onChange, error, touched }: Props) {
   const [open, setOpen] = useState(false);
-  const selected = DEVICE_TYPES.find((t) => t.key === value);
+  const selected = DEVICE_TYPES.find((t) => t.label === value);
 
   const renderItem = ({ item }: { item: DeviceTypeDef }) => (
     <Pressable
       onPress={() => {
-        onChange(item.key);
+        onChange(item.label);
         setOpen(false);
       }}
       className="flex-row items-center px-4 py-3"
@@ -54,7 +54,7 @@ export default function DeviceTypeSelect({ value, onChange, error, touched }: Pr
           <View className="mt-auto bg-white rounded-t-2xl">
             <FlatList
               data={DEVICE_TYPES}
-              keyExtractor={(i) => i.key}
+              keyExtractor={(i) => i.label}
               renderItem={renderItem}
               ItemSeparatorComponent={() => <View className="h-px bg-gray-100" />}
             />
