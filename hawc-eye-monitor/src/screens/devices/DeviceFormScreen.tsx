@@ -18,29 +18,14 @@ const Schema = Yup.object().shape({
 
 const DeviceFormScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"DeviceForm">["navigation"]>();
-  const rootNavigation = useNavigation<any>();
   const route = useRoute<R>();
 
   const editDevice = (route.params?.device as DeviceItem | undefined) ?? undefined;
   const isEdit = !!editDevice;
 
-  const returnTo = (route.params as any)?.returnTo as
-    | { tab: string; screen?: string; params?: any }
-    | undefined;
-
   const finish = () => {
-    // close form (modal/back)
+    // ✅ بس سكّر المودال — لا تسوي أي Navigate ثاني (هذا اللي كان يسبب الرمش)
     navigation.goBack();
-
-    // ✅ لازم تروح لـ Tabs أولاً، بعدها تختار التاب وتدخل للسكرين
-    if (returnTo?.tab) {
-      rootNavigation.navigate("Tabs", {
-        screen: returnTo.tab,
-        params: returnTo.screen
-          ? { screen: returnTo.screen, params: returnTo.params }
-          : returnTo.params,
-      });
-    }
   };
 
   const initialValues = {
@@ -52,7 +37,7 @@ const DeviceFormScreen = () => {
     const payload: DeviceDoc = {
       name: values.description.trim(), // store description in name
       type: values.type,
-      status: isEdit ? editDevice!.status : DEVICE_STATUSES.find((s) => s.key === "inactive")!.key, // default from source
+      status: isEdit ? editDevice!.status : DEVICE_STATUSES.find((s) => s.key === "inactive")!.key,
     };
 
     if (isEdit && editDevice) {

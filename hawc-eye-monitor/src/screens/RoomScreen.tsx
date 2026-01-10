@@ -1,6 +1,6 @@
 // src/screens/RoomScreen.tsx
-import { useMemo, useState, useEffect, useCallback } from "react";
-import { View, StyleSheet, Pressable, Text, LayoutChangeEvent, Modal, ScrollView } from "react-native";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { View, StyleSheet, Pressable, Text, Modal, ScrollView } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Animated, { useSharedValue, runOnJS } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -8,12 +8,20 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Floor1Svg from "../components/full-floor-map-screen/Floor1Svg";
 import Floor2Svg from "../components/full-floor-map-screen/Floor2Svg";
 import Floor3Svg from "../components/full-floor-map-screen/Floor3Svg";
-import { collection, onSnapshot, query, writeBatch, doc, serverTimestamp, updateDoc, deleteField, where } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  writeBatch,
+  doc,
+  serverTimestamp,
+  updateDoc,
+  deleteField,
+  where,
+} from "firebase/firestore";
 import { db } from "../config/firebase";
-
-
-// ✅ Button component
 import Button from "../components/Button";
+import { DEVICE_TYPES } from "../types/deviceTypes";
 
 type Params = { floorId: string; roomId: string };
 
@@ -53,7 +61,7 @@ const RoomScreen = () => {
   const { params } = useRoute<any>();
   const { floorId, roomId } = params as Params;
   const navigation = useNavigation<any>();
-
+  const stageRef = useRef<View>(null);
 
   const content = useMemo(() => {
     if (floorId === "1") return <Floor1Svg onlyRoomId={roomId} />;
@@ -132,11 +140,20 @@ const RoomScreen = () => {
   // ✅ pending فقط للأجهزة الجديدة اللي جت من التاب (مو للأكتيف)
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
+  // ✅ FIX: ref حتى onSnapshot يشوف أحدث pendingIds
+  const pendingIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    pendingIdsRef.current = pendingIds;
+  }, [pendingIds]);
+
+  // ✅ FIX: خزن أماكن pending بشكل مستقل حتى الـ onSnapshot ما يمسحها بسبب Race
+  const pendingPlacedRef = useRef<Record<string, PlacedDevice>>({});
+
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   // سحب جارٍ (ghost)
-  const [drag, setDrag] = useState<{ type: DeviceType; x: number; y: number } | null>(null);
+  const [drag, setDrag] = useState<{ id: string; type: DeviceType; x: number; y: number } | null>(null);
 
   // Popup
   const [selected, setSelected] = useState<PlacedDevice | null>(null);
@@ -148,6 +165,39 @@ const RoomScreen = () => {
     () => (toolSelectedId ? toolbarDevices.find((d) => d.id === toolSelectedId) ?? null : null),
     [toolSelectedId, toolbarDevices]
   );
+
+  // ✅ hint للـ horizontal scroll بالـ toolbar
+  const [toolScrollW, setToolScrollW] = useState(0);
+  const [toolContentW, setToolContentW] = useState(0);
+  const [toolScrollX, setToolScrollX] = useState(0);
+
+  const canScrollToolbar = toolContentW > toolScrollW + 1;
+  const toolMaxX = Math.max(0, toolContentW - toolScrollW);
+  const atToolbarEnd = toolScrollX >= toolMaxX - 1;
+  const showToolbarScrollHint = canScrollToolbar && !atToolbarEnd;
+
+  // ✅ blur listener
+  useEffect(() => {
+    const unsub = navigation.addListener("blur", () => {
+      // ✅ شيل كل الأجهزة اللي ما انحفظت
+      setPlaced((prev) => prev.filter((p) => !pendingIdsRef.current.has(p.id)));
+
+      // ✅ نظّف pending refs
+      pendingPlacedRef.current = {};
+
+      // ✅ رجعهم للشريط
+      setPendingIds(() => {
+        const next = new Set<string>();
+        pendingIdsRef.current = next;
+        return next;
+      });
+
+      // (اختياري) نظّف اختيار الشريط
+      setToolSelectedId(null);
+    });
+
+    return unsub;
+  }, [navigation]);
 
   const selectedFs = useMemo(() => {
     if (!selected) return null;
@@ -169,19 +219,27 @@ const RoomScreen = () => {
 
     closeDetails();
 
-    navigation.navigate("DeviceForm", {
-      deviceId: selected.id,
-      floorId,
-      roomId,
+    const info = devicesById[selected.id];
+
+    navigation.navigate("DeviceFormModal", {
+      device: {
+        id: selected.id,
+        name: info?.name ?? "",
+        type: info?.typeRaw ?? "",
+        status: info?.status ?? "inactive",
+      },
+      returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } },
     });
   };
 
-
-  const onStageLayout = (e: LayoutChangeEvent) => {
-    const { x, y, width, height } = e.nativeEvent.layout;
-    setStageBox({ x, y, w: width, h: height });
-    stageW.value = width;
-    stageH.value = height;
+  const onStageLayout = () => {
+    requestAnimationFrame(() => {
+      stageRef.current?.measureInWindow((x, y, width, height) => {
+        setStageBox({ x, y, w: width, h: height });
+        stageW.value = width;
+        stageH.value = height;
+      });
+    });
   };
 
   // ===== Helpers =====
@@ -238,11 +296,12 @@ const RoomScreen = () => {
         const name = d?.name ? String(d.name) : undefined;
         const typeRaw = d?.type ? String(d.type) : undefined;
 
-
+        
         const status = String(d?.status ?? "").toLowerCase().trim();
 
         map[docSnap.id] = { name, typeRaw, status };
 
+        // الشريط فقط للأجهزة inactive
         if (status !== "inactive") return;
 
         const type = mapToDeviceType(typeRaw ?? "");
@@ -284,55 +343,99 @@ const RoomScreen = () => {
 
       setSavedById(nextSaved);
 
-      // نخلي المحفوظين يجيون من الفايرستور + نخلي pending (الجدد) مثل ما هم
-      setPlaced((prev) => {
-        const keepPendingLocal = prev.filter((p) => pendingIds.has(p.id) && !fsMap[p.id]);
-        return [...Object.values(fsMap), ...keepPendingLocal];
+      // ✅ دمج: active من الفايرستور + pending من ref (حتى لو صار Race)
+      setPlaced(() => {
+        const pendingLocal = Object.values(pendingPlacedRef.current).filter((p) => !fsMap[p.id]);
+        return [...Object.values(fsMap), ...pendingLocal];
       });
 
       // pending لازم يبقى فقط للجدد (اللي بعدهم مو موجودين بـ nextSaved)
       setPendingIds((prev) => {
         const next = new Set(prev);
         next.forEach((id) => {
-          if (nextSaved[id]) next.delete(id);
+          if (nextSaved[id]) {
+            next.delete(id);
+            delete pendingPlacedRef.current[id]; // ✅ إذا صار Active، شيله من pendingPlacedRef
+          }
         });
+        pendingIdsRef.current = next;
         return next;
       });
     });
 
     return () => unsub();
-  }, [roomId, pendingIds]);
+  }, [roomId]);
 
   // ===== Drop device from toolbar =====
+  // ✅ FIX: drop أسهل + snap للداخل + مضمون داخل الغرفة
   const placeIfInside = (deviceId: string, type: DeviceType, absX: number, absY: number) => {
-    const allowed = getAllowedRectScreen();
+    // إذا القياسات مو جاهزة
+    if (stageBox.w <= 0 || stageBox.h <= 0 || stageW.value <= 0 || stageH.value <= 0) return;
 
-    const insideScreen =
-      absX >= allowed.x &&
-      absX <= allowed.x + allowed.w &&
-      absY >= allowed.y &&
-      absY <= allowed.y + allowed.h;
+    // حول إلى local داخل الـ stage
+    const localX0 = absX - stageBox.x;
+    const localY0 = absY - stageBox.y;
 
-    if (!insideScreen) return;
+    // allowed داخل الـ content
+    const contentW = stageW.value;
+    const contentH = stageH.value;
 
-    const localX = absX - stageBox.x;
-    const localY = absY - stageBox.y;
+    const ax = contentW * marginX.value;
+    const aw = contentW * (1 - marginX.value * 2);
 
-    const a = getAllowedRectContent();
-    const insideContent = localX >= a.x && localX <= a.x + a.w && localY >= a.y && localY <= a.y + a.h;
+    const ay = contentH * marginTop.value;
+    const ah = contentH * (1 - marginTop.value - marginBottom.value);
 
-    if (!insideContent) return;
+    // وسّع منطقة الإسقاط (حتى ما تحتاج أكثر من محاولة)
+    const DROP_PAD = 26;
 
+    const insideNear =
+      localX0 >= ax - DROP_PAD &&
+      localX0 <= ax + aw + DROP_PAD &&
+      localY0 >= ay - DROP_PAD &&
+      localY0 <= ay + ah + DROP_PAD;
+
+    if (!insideNear) return;
+
+    // ✅ clamp داخل حدود الغرفة (نفس منطق السحب)
+    const isMeetingRoom = rid.includes("meeting");
+    const isStairs = rid.includes("stairs");
+    const isCorridor = rid.includes("corridor");
+    const isRestroom = rid.includes("restroom") || rid === "wc";
+
+    const minX = ax + (isRestroom ? RESTROOM_PAD_LEFT : 0);
+    const maxX =
+      ax +
+      aw -
+      (isMeetingRoom ? MEETING_RIGHT_SAFE_PAD : 0) -
+      (isStairs ? STAIRS_RIGHT_SAFE_PAD : 0) -
+      (isRestroom ? RESTROOM_PAD_RIGHT : 0);
+
+    const minY = ay + (isRestroom ? RESTROOM_PAD_TOP : 0);
+    const maxY =
+      ay +
+      ah -
+      (isStairs ? STAIRS_BOTTOM_SAFE_PAD : 0) -
+      (isCorridor ? CORRIDOR_BOTTOM_SAFE_PAD : 0) -
+      (isRestroom ? RESTROOM_PAD_BOTTOM : 0);
+
+    const clampedX = Math.min(Math.max(minX, localX0), maxX);
+    const clampedY = Math.min(Math.max(minY, localY0), maxY);
+
+    // ✅ خزنه كـ pending ref (حتى ما يختفي)
+    pendingPlacedRef.current[deviceId] = { id: deviceId, type, x: clampedX, y: clampedY };
+
+    // ✅ حدّث الـ placed مباشرة (عرض الماركر)
     setPlaced((prev) => {
-      const exists = prev.some((p) => p.id === deviceId);
-      if (exists) return prev.map((p) => (p.id === deviceId ? { ...p, x: localX, y: localY, type } : p));
-      return [...prev, { id: deviceId, type, x: localX, y: localY }];
+      const others = prev.filter((p) => p.id !== deviceId);
+      return [...others, { id: deviceId, type, x: clampedX, y: clampedY }];
     });
 
-    // ✅ هذا جهاز جاي من التاب (inactive) => يحتاج Save
+    // ✅ pending (تفعيل زر Save)
     setPendingIds((prev) => {
       const next = new Set(prev);
       next.add(deviceId);
+      pendingIdsRef.current = next;
       return next;
     });
   };
@@ -348,7 +451,7 @@ const RoomScreen = () => {
       const batch = writeBatch(db);
 
       pendingIds.forEach((id) => {
-        const p = placed.find((x) => x.id === id);
+        const p = pendingPlacedRef.current[id] ?? placed.find((x) => x.id === id);
         if (!p) return;
 
         batch.update(doc(db, "devices", id), {
@@ -363,7 +466,12 @@ const RoomScreen = () => {
       await batch.commit();
 
       // بعد الكوميت، onSnapshot راح يشيلهم من pendingIds تلقائياً
-      setPendingIds(new Set());
+      setPendingIds(() => {
+        const next = new Set<string>();
+        pendingIdsRef.current = next;
+        pendingPlacedRef.current = {};
+        return next;
+      });
     } finally {
       setSaving(false);
     }
@@ -372,7 +480,6 @@ const RoomScreen = () => {
   // ✅ Active move: ينحفظ مباشرة بدون ما يشتغل زر Save
   const saveActivePosition = useCallback(
     async (id: string, x: number, y: number) => {
-      // إذا هذا مو active محفوظ، لا تسوي شي
       if (!savedById[id]) return;
 
       try {
@@ -381,9 +488,7 @@ const RoomScreen = () => {
           y,
           updatedAt: serverTimestamp(),
         });
-      } catch {
-        // تجاهل (إذا تريد: سوّي Toast)
-      }
+      } catch {}
     },
     [savedById]
   );
@@ -392,11 +497,12 @@ const RoomScreen = () => {
   const updatePlacedLocal = (id: string, x: number, y: number) => {
     setPlaced((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)));
 
-    // pending فقط للجدد (غير محفوظين بعد)
     setPendingIds((prev) => {
-      if (savedById[id]) return prev; // ✅ أكتيف => لا تفعيل زر
+      if (savedById[id]) return prev;
       const next = new Set(prev);
       next.add(id);
+      pendingIdsRef.current = next;
+      pendingPlacedRef.current[id] = { id, type: placed.find((p) => p.id === id)?.type ?? "camera", x, y };
       return next;
     });
   };
@@ -405,6 +511,23 @@ const RoomScreen = () => {
   const onDeleteSelected = async () => {
     if (!selected) return;
     if (deleting) return;
+
+    // ✅ إذا الجهاز Pending (لسه ما محفوظ)
+    if (pendingIdsRef.current.has(selected.id)) {
+      setPlaced((prev) => prev.filter((p) => p.id !== selected.id));
+
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(selected.id);
+        pendingIdsRef.current = next;
+        return next;
+      });
+
+      delete pendingPlacedRef.current[selected.id];
+
+      closeDetails();
+      return;
+    }
 
     try {
       setDeleting(true);
@@ -422,8 +545,11 @@ const RoomScreen = () => {
       setPendingIds((prev) => {
         const next = new Set(prev);
         next.delete(selected.id);
+        pendingIdsRef.current = next;
         return next;
       });
+
+      delete pendingPlacedRef.current[selected.id];
 
       closeDetails();
     } finally {
@@ -436,10 +562,10 @@ const RoomScreen = () => {
     Gesture.Pan()
       .activateAfterLongPress(250)
       .onBegin((e) => {
-        runOnJS(setDrag)({ type, x: e.absoluteX, y: e.absoluteY });
+        runOnJS(setDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
       })
       .onUpdate((e) => {
-        runOnJS(setDrag)({ type, x: e.absoluteX, y: e.absoluteY });
+        runOnJS(setDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
       })
       .onEnd((e) => {
         runOnJS(setDrag)(null);
@@ -452,14 +578,16 @@ const RoomScreen = () => {
   const dragStartX = useSharedValue(0);
   const dragStartY = useSharedValue(0);
 
-  // نخزن آخر مكان محسوب حتى نكتب للفايرستور بـ onEnd
   const lastX = useSharedValue(0);
   const lastY = useSharedValue(0);
 
   const onPlacedDragEnd = (id: string, x: number, y: number) => {
-    // ✅ إذا أكتيف => احفظ مباشرة بدون تفعيل زر
     if (savedById[id]) {
       saveActivePosition(id, x, y);
+    } else {
+      // pending: حدّث ref حتى لو صار أي re-render
+      const p = placed.find((pp) => pp.id === id);
+      if (p) pendingPlacedRef.current[id] = { ...p, x, y };
     }
   };
 
@@ -519,18 +647,36 @@ const RoomScreen = () => {
       });
 
   // ===== Icons =====
-  const renderToolIcon = (type: DeviceType) => {
-    if (type === "camera") return <Ionicons name="camera-outline" size={22} color="#111827" />;
-    if (type === "alarm") return <MaterialCommunityIcons name="fire-alert" size={22} color="#111827" />;
-    if (type === "sprinkler") return <MaterialCommunityIcons name="sprinkler" size={22} color="#111827" />;
-    return <MaterialCommunityIcons name="badge-account-outline" size={22} color="#111827" />;
+  const getTypeIconFromDefs = (typeRaw?: string) => {
+    const key = (typeRaw ?? "").toLowerCase().trim();
+    const found = DEVICE_TYPES.find((t) => t.label.toLowerCase().trim() === key);
+    return found?.icon;
   };
 
-  const renderMarkerIcon = (type: DeviceType) => {
-    if (type === "camera") return <Ionicons name="camera" size={18} color="#111827" />;
-    if (type === "alarm") return <MaterialCommunityIcons name="fire-alert" size={18} color="#111827" />;
-    if (type === "sprinkler") return <MaterialCommunityIcons name="sprinkler" size={18} color="#111827" />;
-    return <MaterialCommunityIcons name="badge-account-outline" size={18} color="#111827" />;
+  const fallbackIconByDeviceType = (type: DeviceType) => {
+    if (type === "camera") return "cctv";
+    if (type === "alarm") return "alarm-light";
+    if (type === "sprinkler") return "sprinkler";
+    return "badge-account-outline";
+  };
+
+  const renderToolIcon = (deviceId: string, fallbackType: DeviceType) => {
+    const typeRaw = devicesById[deviceId]?.typeRaw;
+    const icon = getTypeIconFromDefs(typeRaw) ?? fallbackIconByDeviceType(fallbackType);
+
+    return <MaterialCommunityIcons name={icon} size={22} color="#111827" />;
+  };
+
+  const renderMarkerIcon = (deviceId: string, fallbackType: DeviceType, size: number) => {
+    const typeRaw = devicesById[deviceId]?.typeRaw;
+    const icon = getTypeIconFromDefs(typeRaw) ?? fallbackIconByDeviceType(fallbackType);
+
+    return <MaterialCommunityIcons name={icon} size={size} color="#111827" />;
+  };
+
+  const renderGhostIcon = (type: DeviceType) => {
+    const icon = fallbackIconByDeviceType(type);
+    return <MaterialCommunityIcons name={icon} size={18} color="#111827" />;
   };
 
   return (
@@ -538,7 +684,7 @@ const RoomScreen = () => {
       {toolSelected && (
         <View style={styles.toolDetailsBar}>
           <View style={styles.toolDetailsLeft}>
-            <View style={styles.toolDetailsIcon}>{renderToolIcon(toolSelected.type)}</View>
+            <View style={styles.toolDetailsIcon}>{renderToolIcon(toolSelected.id, toolSelected.type)}</View>
             <View style={styles.toolDetailsText}>
               <Text style={styles.toolDetailsTitle}>{devicesById[toolSelected.id]?.name ?? "-"}</Text>
               <Text style={styles.toolDetailsDesc}>Type: {devicesById[toolSelected.id]?.typeRaw ?? "-"}</Text>
@@ -558,18 +704,28 @@ const RoomScreen = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.toolbarScrollContent}
             style={styles.toolbarScroll}
+            onLayout={(e) => setToolScrollW(e.nativeEvent.layout.width)}
+            onContentSizeChange={(w) => setToolContentW(w)}
+            onScroll={(e) => setToolScrollX(e.nativeEvent.contentOffset.x)}
+            scrollEventThrottle={16}
           >
-            {toolbarDevices.map((dev) => (
-              <GestureDetector key={dev.id} gesture={makeToolGesture(dev.id, dev.type)}>
-                <Pressable
-                  onPress={() => setToolSelectedId(dev.id)}
-                  style={[styles.toolBtn, toolSelectedId === dev.id && styles.toolBtnActive]}
-                >
-                  {renderToolIcon(dev.type)}
-                </Pressable>
-              </GestureDetector>
-            ))}
+            {toolbarDevices
+              .filter((dev) => !(pendingIds.has(dev.id) && placed.some((p) => p.id === dev.id)))
+              .map((dev) => (
+                <GestureDetector key={dev.id} gesture={makeToolGesture(dev.id, dev.type)}>
+                  <Pressable
+                    onPress={() => setToolSelectedId(dev.id)}
+                    style={[styles.toolBtn, toolSelectedId === dev.id && styles.toolBtnActive]}
+                  >
+                    {renderToolIcon(dev.id, dev.type)}
+                  </Pressable>
+                </GestureDetector>
+              ))}
           </ScrollView>
+
+          <View pointerEvents="none" style={[styles.toolbarScrollHintWrap, !showToolbarScrollHint && styles.hidden]}>
+            <View style={styles.toolbarScrollHint} />
+          </View>
 
           <Pressable
             style={styles.addBtn}
@@ -586,7 +742,7 @@ const RoomScreen = () => {
         </View>
       </View>
 
-      <View style={styles.stageWrap} onLayout={onStageLayout}>
+      <View ref={stageRef} style={styles.stageWrap} onLayout={onStageLayout}>
         <Animated.View style={styles.stage}>
           <View style={styles.canvas}>
             {content}
@@ -603,7 +759,7 @@ const RoomScreen = () => {
                     },
                   ]}
                 >
-                  {renderMarkerIcon(d.type)}
+                  {renderMarkerIcon(d.id, d.type, 18)}
                 </Pressable>
               </GestureDetector>
             ))}
@@ -621,12 +777,12 @@ const RoomScreen = () => {
               },
             ]}
           >
-            {renderMarkerIcon(drag.type)}
+            {renderMarkerIcon(drag.id, drag.type, 18)}
           </View>
         )}
       </View>
 
-      {/* ✅ Save button: يتفعل فقط للجدد (pending من التاب). الأكتيف تحريكه ما يفعله */}
+      {/* ✅ Save button */}
       <View style={styles.saveBar}>
         <Button label={saving ? "Saving..." : "Save"} onPress={onSaveAll} disabled={saving || pendingIds.size === 0} />
       </View>
@@ -648,14 +804,15 @@ const RoomScreen = () => {
 
             <View style={styles.modalActions}>
               <Button label="Edit" onPress={onEditSelected} variant="outline" disabled={deleting} />
-              <Button label={deleting ? "Deleting..." : "Delete"} onPress={onDeleteSelected} disabled={deleting} />
+              <Button label={deleting ? "Removing..." : "Remove form this room"} onPress={onDeleteSelected} disabled={deleting} />
             </View>
           </Pressable>
         </Pressable>
       </Modal>
     </View>
   );
-}
+};
+
 export default RoomScreen;
 
 const styles = StyleSheet.create({
@@ -710,6 +867,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
+    position: "relative",
   },
   toolbarScroll: {
     flex: 1,
@@ -722,6 +880,23 @@ const styles = StyleSheet.create({
     height: TOOLBAR_H,
     paddingRight: 6,
   },
+  toolbarScrollHintWrap: {
+    position: "absolute",
+    left: 12,
+    right: 62,
+    bottom: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  toolbarScrollHint: {
+    width: 34,
+    height: 3,
+    borderRadius: 999,
+    backgroundColor: "#93c5fd",
+    opacity: 0.65,
+  },
+  hidden: { opacity: 0 },
+
   toolBtn: {
     width: 40,
     height: 40,
