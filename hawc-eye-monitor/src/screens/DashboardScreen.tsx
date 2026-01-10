@@ -29,6 +29,7 @@ const DashboardScreen = () => {
   }, []);
 
   const totalDevices = devices.length;
+  const activeDevices = devices.filter((d) => d.status === "active").length;
   const activeAlerts = devices.filter((d) => d.status === "issue").length;
   const devicesOffline = devices.filter((d) => d.status === "inactive").length;
 
@@ -45,8 +46,9 @@ const DashboardScreen = () => {
 
   const stats = [
     { label: "Total Devices", value: totalDevices, color: "#111" },
-    { label: "Active Alerts", value: activeAlerts, color: "#ef4444" },
-    { label: "Devices Offline", value: devicesOffline, color: "#fb923c" },
+    { label: "Active Devices", value: activeDevices, color: "#10b981" },
+    { label: "Devices With Issues", value: activeAlerts, color: "#ef4444" },
+    { label: "Inactive Devices", value: devicesOffline, color: "#fb923c" },
   ];
 
   return (
