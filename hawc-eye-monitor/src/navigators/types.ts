@@ -27,9 +27,7 @@ export type TabsNavProps<T extends keyof TabParamsList> =
 // App Stack
 export type AppStackParamsList = {
   Dashboard: undefined;
-  DeviceDetail: { id: string };
-  TicketDetail: { id: string };
-  FullFloorMap: { floorId: string };
+  Website: undefined;
 };
 export type AppStackNavProps<T extends keyof AppStackParamsList> =
   StackScreenProps<AppStackParamsList, T>;
