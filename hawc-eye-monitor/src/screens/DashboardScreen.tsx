@@ -1,5 +1,5 @@
 // src/screens/DashboardScreen.tsx
-import { ScrollView, View, Text, StyleSheet, Pressable } from "react-native";
+import { ScrollView, View, Text, Pressable } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 import ImageCarousel from "../components/dashboard-screen/ImageCarousel";
 import StatsGrid from "../components/dashboard-screen/StatsGrid";
@@ -50,7 +50,7 @@ const DashboardScreen = () => {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 16 }}>
       <Header title="Dashboard" />
 
       {/* معرض الصور */}
@@ -59,84 +59,45 @@ const DashboardScreen = () => {
       {/* بطاقات المعلومات */}
       <StatsGrid stats={stats} />
 
-      {/* Official Website Button */}
-      <Pressable style={styles.websiteButton} onPress={() => navigation.navigate("Website")}>
-        <View style={styles.websiteButtonRow}>
-          <View style={styles.websiteButtonLeft}>
-            <MaterialCommunityIcons name="web" size={22} color="#ffffff" />
-            <Text style={styles.websiteButtonText}>Visit our official website</Text>
-          </View>
-          <MaterialCommunityIcons name="chevron-right" size={22} color="#ffffff" />
-        </View>
-      </Pressable>
-
       {/* التنبيهات الأخيرة */}
-      <Text style={styles.sectionTitle}>Latest Alerts</Text>
+      <Text className="mt-5 mb-2 text-base font-bold text-gray-900">Latest Alerts</Text>
 
       {latestAlerts.length === 0 ? (
-        <View style={styles.listItem}>
-          <Text style={styles.muted}>No active issues.</Text>
+        <View className="bg-white rounded-xl p-3 mb-2">
+          <Text className="mt-1 text-xs text-gray-500">No active issues.</Text>
         </View>
       ) : (
         latestAlerts.map((item) => (
-          <View key={item.id} style={styles.listItem}>
-            <Text style={[styles.alertTitle, { color: "#ef4444" }]} numberOfLines={1}>
+          <View key={item.id} className="bg-white rounded-xl p-3 mb-2">
+            <Text className="font-bold text-red-500" numberOfLines={1}>
               {item.issueType || item.name}
             </Text>
             {!!item.issueDescription && (
-              <Text style={styles.muted} numberOfLines={2}>
+              <Text className="mt-1 text-xs text-gray-500" numberOfLines={2}>
                 {item.issueDescription}
               </Text>
             )}
           </View>
         ))
       )}
+
+      {/* Official Website Button */}
+      <Pressable
+        className="mt-4 mb-6 bg-white rounded-xl px-3 py-3 border border-gray-200"
+        onPress={() => navigation.navigate("Website")}
+      >
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <MaterialCommunityIcons name="web" size={20} color="#111827" />
+            <Text className="ml-2 text-sm font-bold text-gray-900">
+              Visit our official website
+            </Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={20} color="#9ca3af" />
+        </View>
+      </Pressable>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f7f7f7" },
-  content: { padding: 16 },
-  sectionTitle: {
-    marginTop: 20,
-    marginBottom: 8,
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  listItem: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-  },
-  alertTitle: { fontWeight: "700" },
-  muted: { marginTop: 4, fontSize: 12, color: "#6b7280" },
-
-  websiteButton: {
-    marginTop: 12,
-    marginBottom: 10,
-    backgroundColor: "#0d7ff2",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-  },
-  websiteButtonRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  websiteButtonLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  websiteButtonText: {
-    marginLeft: 10,
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#ffffff",
-  },
-});
 
 export default DashboardScreen;
