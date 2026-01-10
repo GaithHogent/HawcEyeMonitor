@@ -1,5 +1,5 @@
 // src/screens/RoomScreen.tsx
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { View, StyleSheet, Pressable, Text, LayoutChangeEvent, Modal, ScrollView } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Animated, { useSharedValue, runOnJS } from "react-native-reanimated";
@@ -8,7 +8,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Floor1Svg from "../components/full-floor-map-screen/Floor1Svg";
 import Floor2Svg from "../components/full-floor-map-screen/Floor2Svg";
 import Floor3Svg from "../components/full-floor-map-screen/Floor3Svg";
-import {collection,onSnapshot,query,writeBatch,doc,serverTimestamp,updateDoc,deleteField,where,} from "firebase/firestore";
+import { collection, onSnapshot, query, writeBatch, doc, serverTimestamp, updateDoc, deleteField, where } from "firebase/firestore";
 import { db } from "../config/firebase";
 
 
@@ -24,7 +24,7 @@ type PlacedDevice = { id: string; type: DeviceType; x: number; y: number };
 type ToolbarDevice = { id: string; type: DeviceType; name?: string; status: string };
 
 // ✅ تفاصيل الجهاز من Firestore (للـ popup داخل الغرفة)
-type FsDeviceInfo = { name?: string; typeRaw?: string };
+type FsDeviceInfo = { name?: string; typeRaw?: string; status?: string };
 
 const TOOLBAR_H = 52;
 const MARKER_SIZE = 28;
@@ -49,7 +49,7 @@ const RESTROOM_PAD_RIGHT = 16;
 const RESTROOM_PAD_TOP = 60;
 const RESTROOM_PAD_BOTTOM = 165;
 
-export default function RoomScreen() {
+const RoomScreen = () => {
   const { params } = useRoute<any>();
   const { floorId, roomId } = params as Params;
   const navigation = useNavigation<any>();
@@ -165,16 +165,16 @@ export default function RoomScreen() {
   };
 
   const onEditSelected = () => {
-  if (!selected) return;
+    if (!selected) return;
 
-  closeDetails();
+    closeDetails();
 
-  navigation.navigate("DeviceForm", {
-    deviceId: selected.id,
-    floorId,
-    roomId,
-  });
-};
+    navigation.navigate("DeviceForm", {
+      deviceId: selected.id,
+      floorId,
+      roomId,
+    });
+  };
 
 
   const onStageLayout = (e: LayoutChangeEvent) => {
@@ -238,9 +238,11 @@ export default function RoomScreen() {
         const name = d?.name ? String(d.name) : undefined;
         const typeRaw = d?.type ? String(d.type) : undefined;
 
-        map[docSnap.id] = { name, typeRaw };
 
         const status = String(d?.status ?? "").toLowerCase().trim();
+
+        map[docSnap.id] = { name, typeRaw, status };
+
         if (status !== "inactive") return;
 
         const type = mapToDeviceType(typeRaw ?? "");
@@ -317,8 +319,7 @@ export default function RoomScreen() {
     const localY = absY - stageBox.y;
 
     const a = getAllowedRectContent();
-    const insideContent =
-      localX >= a.x && localX <= a.x + a.w && localY >= a.y && localY <= a.y + a.h;
+    const insideContent = localX >= a.x && localX <= a.x + a.w && localY >= a.y && localY <= a.y + a.h;
 
     if (!insideContent) return;
 
@@ -539,8 +540,8 @@ export default function RoomScreen() {
           <View style={styles.toolDetailsLeft}>
             <View style={styles.toolDetailsIcon}>{renderToolIcon(toolSelected.type)}</View>
             <View style={styles.toolDetailsText}>
-              <Text style={styles.toolDetailsTitle}>{toolSelected.name ?? "-"}</Text>
-              <Text style={styles.toolDetailsDesc}>Type: {typeLabel(toolSelected.type)}</Text>
+              <Text style={styles.toolDetailsTitle}>{devicesById[toolSelected.id]?.name ?? "-"}</Text>
+              <Text style={styles.toolDetailsDesc}>Type: {devicesById[toolSelected.id]?.typeRaw ?? "-"}</Text>
             </View>
           </View>
 
@@ -571,12 +572,17 @@ export default function RoomScreen() {
           </ScrollView>
 
           <Pressable
-        style={styles.addBtn}
-        onPress={() => navigation.getParent()?.navigate("Devices", { screen: "DeviceForm" })}
-      >
-        <Ionicons name="add" size={22} color="#111827" />
-      </Pressable>
-
+            style={styles.addBtn}
+            onPress={() =>
+              navigation.navigate("DeviceFormModal", {
+                floorId,
+                roomId,
+                returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } },
+              })
+            }
+          >
+            <Ionicons name="add" size={22} color="#111827" />
+          </Pressable>
         </View>
       </View>
 
@@ -628,10 +634,17 @@ export default function RoomScreen() {
       <Modal visible={detailsOpen} transparent animationType="fade" onRequestClose={closeDetails}>
         <Pressable style={styles.modalBackdrop} onPress={closeDetails}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Device details</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Device details</Text>
+
+              <Pressable style={styles.modalCloseBtn} onPress={closeDetails} hitSlop={10}>
+                <Ionicons name="close" size={18} color="#111827" />
+              </Pressable>
+            </View>
 
             <Text style={styles.modalRow}>Name: {selectedFs?.name ?? "-"}</Text>
             <Text style={styles.modalRow}>Type: {selectedFs?.typeRaw ?? "-"}</Text>
+            <Text style={styles.modalRow}>Status: {selectedFs?.status ?? "-"}</Text>
 
             <View style={styles.modalActions}>
               <Button label="Edit" onPress={onEditSelected} variant="outline" disabled={deleting} />
@@ -643,6 +656,7 @@ export default function RoomScreen() {
     </View>
   );
 }
+export default RoomScreen;
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#fff", overflow: "hidden" },
@@ -772,4 +786,19 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 16, fontWeight: "700", color: "#111827", marginBottom: 10 },
   modalRow: { fontSize: 14, color: "#374151", marginBottom: 6 },
   modalActions: { flexDirection: "row", gap: 10, marginTop: 14 },
+
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  modalCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f3f4f6",
+  },
 });

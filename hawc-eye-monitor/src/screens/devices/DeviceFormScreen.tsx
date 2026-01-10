@@ -18,10 +18,30 @@ const Schema = Yup.object().shape({
 
 const DeviceFormScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"DeviceForm">["navigation"]>();
+  const rootNavigation = useNavigation<any>();
   const route = useRoute<R>();
 
   const editDevice = (route.params?.device as DeviceItem | undefined) ?? undefined;
   const isEdit = !!editDevice;
+
+  const returnTo = (route.params as any)?.returnTo as
+    | { tab: string; screen?: string; params?: any }
+    | undefined;
+
+  const finish = () => {
+    // close form (modal/back)
+    navigation.goBack();
+
+    // ✅ لازم تروح لـ Tabs أولاً، بعدها تختار التاب وتدخل للسكرين
+    if (returnTo?.tab) {
+      rootNavigation.navigate("Tabs", {
+        screen: returnTo.tab,
+        params: returnTo.screen
+          ? { screen: returnTo.screen, params: returnTo.params }
+          : returnTo.params,
+      });
+    }
+  };
 
   const initialValues = {
     description: editDevice?.name ?? "", // name is used as description
@@ -32,27 +52,23 @@ const DeviceFormScreen = () => {
     const payload: DeviceDoc = {
       name: values.description.trim(), // store description in name
       type: values.type,
-      status: isEdit ? editDevice!.status : DEVICE_STATUSES.find(s => s.key === "inactive")!.key, // default from source
+      status: isEdit ? editDevice!.status : DEVICE_STATUSES.find((s) => s.key === "inactive")!.key, // default from source
     };
 
     if (isEdit && editDevice) {
       await updateDevice(editDevice.id, payload);
-      navigation.goBack();
+      finish();
       return;
     }
 
     await createDevice(payload);
-    navigation.goBack();
+    finish();
   };
 
   return (
     <View className="flex-1 bg-white p-4">
       <View className="rounded-2xl border border-gray-200 p-4">
-        <Formik
-          initialValues={initialValues}
-          validationSchema={Schema}
-          onSubmit={onSubmit}
-        >
+        <Formik initialValues={initialValues} validationSchema={Schema} onSubmit={onSubmit}>
           {({ handleChange, handleSubmit, values, errors, touched, setFieldValue, isSubmitting }) => (
             <>
               <Text className="text-sm text-gray-600">Description</Text>
@@ -86,9 +102,7 @@ const DeviceFormScreen = () => {
                   {isSubmitting ? (
                     <ActivityIndicator />
                   ) : (
-                    <Text className="text-white font-semibold">
-                      {isEdit ? "Save Changes" : "Create Device"}
-                    </Text>
+                    <Text className="text-white font-semibold">{isEdit ? "Save Changes" : "Create Device"}</Text>
                   )}
                 </Pressable>
               </View>

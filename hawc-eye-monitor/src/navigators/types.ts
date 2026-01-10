@@ -50,6 +50,27 @@ export type DevicesStackParamsList = {
 };
 export type DevicesStackNavProps<T extends keyof DevicesStackParamsList> =
   StackScreenProps<DevicesStackParamsList, T>;
+// ===================================================
+// Root Stack
+export type RootStackParamList = {
+  Tabs: undefined;
+  DeviceFormModal:
+    | {
+        deviceId?: string; 
+        floorId?: string;
+        roomId?: string;
+        returnTo?: {
+          tab: keyof TabParamsList;        
+          screen?: string;                 
+          params?: any;
+        };
+      }
+    | undefined;
+};
+//TODO: لازم اشيل التعليق منا و اشوف وين لازم استعملها 
+
+/*export type RootStackNavProps<T extends keyof RootStackParamList> =
+  StackScreenProps<RootStackParamList, T>;*/
 // =============================================================================
 // React Navigation Global Param List
 declare global {

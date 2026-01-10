@@ -3,11 +3,11 @@ import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
-import TabNavigator from "../navigators/TabNavigator";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "../config/firebase";
 import AuthStack from "../navigators/AuthStack";
+import RootNavigator from "../navigators/RootNavigator";
 import * as SplashScreen from "expo-splash-screen";
 
 import "../../global.css";
@@ -37,14 +37,14 @@ const Root = () => {
   if (isAuthLoading) {
     return null;
   }
-
-
+  
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <NavigationContainer>
-          {user ? <TabNavigator /> : <AuthStack />}
-          {/*<TabNavigator />*/}
+          {/*user ? <RootNavigator /> : <AuthStack />*/}
+          <RootNavigator />
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
