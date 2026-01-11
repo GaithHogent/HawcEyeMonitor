@@ -2,12 +2,31 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { View, StyleSheet, Pressable, Text, Modal, ScrollView } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import Animated, { useSharedValue, runOnJS } from "react-native-reanimated";
+import Animated, { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import Floor1Svg from "../components/full-floor-map-screen/Floor1Svg";
-import Floor2Svg from "../components/full-floor-map-screen/Floor2Svg";
-import Floor3Svg from "../components/full-floor-map-screen/Floor3Svg";
+
+import Floor1Svg, {
+  FLOOR1_BOUNDS,
+  FLOOR1_VB_PADDING,
+  FLOOR1_VB_MIN_W,
+  FLOOR1_VB_MIN_H,
+} from "../components/full-floor-map-screen/Floor1Svg";
+
+import Floor2Svg, {
+  FLOOR2_BOUNDS,
+  FLOOR2_VB_PADDING,
+  FLOOR2_VB_MIN_W,
+  FLOOR2_VB_MIN_H,
+} from "../components/full-floor-map-screen/Floor2Svg";
+
+import Floor3Svg, {
+  FLOOR3_BOUNDS,
+  FLOOR3_VB_PADDING,
+  FLOOR3_VB_MIN_W,
+  FLOOR3_VB_MIN_H,
+} from "../components/full-floor-map-screen/Floor3Svg";
+
 import {
   collection,
   onSnapshot,
@@ -26,7 +45,7 @@ import { DEVICE_TYPES } from "../types/deviceTypes";
 type Params = { floorId: string; roomId: string };
 
 type DeviceType = "camera" | "alarm" | "sprinkler" | "access";
-type PlacedDevice = { id: string; type: DeviceType; x: number; y: number };
+type PlacedDevice = { id: string; type: DeviceType; x: number; y: number; nx: number; ny: number };
 
 // ✅ devices اللي تجي من الفايرستور (للشريط فقط)
 type ToolbarDevice = { id: string; type: DeviceType; name?: string; status: string };
@@ -42,7 +61,7 @@ const DEFAULT_MARGIN_X = 0.18; // يمين/يسار
 const DEFAULT_MARGIN_TOP = 0.12; // فوق
 const DEFAULT_MARGIN_BOTTOM = 0.18; // جوه
 
-// ===== غرف اليمين (Room 101/102/103) =====
+// ===== غرف اليمين (office-101/102/103) =====
 const RIGHT_MARGIN_X = 0.2;
 const RIGHT_MARGIN_TOP = 0.1;
 const RIGHT_MARGIN_BOTTOM = 0.1;
@@ -62,6 +81,13 @@ const RoomScreen = () => {
   const { floorId, roomId } = params as Params;
   const navigation = useNavigation<any>();
   const stageRef = useRef<View>(null);
+  const placedDragTs = useSharedValue(0);
+  const [draggingPlaced, setDraggingPlaced] = useState<{ id: string; type: DeviceType } | null>(null);
+  const placedDragX = useSharedValue(0);
+  const placedDragY = useSharedValue(0);
+
+  // ✅ NEW: لا تمسح pending عند فتح مودال (DeviceFormModal) ثم الرجوع
+  const skipClearOnBlurRef = useRef(false);
 
   const content = useMemo(() => {
     if (floorId === "1") return <Floor1Svg onlyRoomId={roomId} />;
@@ -72,13 +98,7 @@ const RoomScreen = () => {
   // ===== margins حسب نوع الغرفة =====
   const rid = (roomId ?? "").toLowerCase();
 
-  const isRightRoom =
-    rid.includes("room 101") ||
-    rid.includes("room 102") ||
-    rid.includes("room 103") ||
-    rid === "room101" ||
-    rid === "room102" ||
-    rid === "room103";
+  const isRightRoom = rid === "office-101" || rid === "office-102" || rid === "office-103";
 
   let mx = DEFAULT_MARGIN_X;
   let mt = DEFAULT_MARGIN_TOP;
@@ -127,6 +147,10 @@ const RoomScreen = () => {
 
   // أجهزة على الغرفة
   const [placed, setPlaced] = useState<PlacedDevice[]>([]);
+  const placedRef = useRef<PlacedDevice[]>([]);
+  useEffect(() => {
+    placedRef.current = placed;
+  }, [placed]);
 
   // Toolbar inactive فقط
   const [toolbarDevices, setToolbarDevices] = useState<ToolbarDevice[]>([]);
@@ -185,7 +209,10 @@ const RoomScreen = () => {
 
   // ✅ blur listener
   useEffect(() => {
-    const unsub = navigation.addListener("blur", () => {
+    const unsubBlur = navigation.addListener("blur", () => {
+      // ✅ NEW: إذا رحت لمودال (إضافة/تعديل) لا تمسح pending
+      if (skipClearOnBlurRef.current) return;
+
       // ✅ شيل كل الأجهزة اللي ما انحفظت
       setPlaced((prev) => prev.filter((p) => !pendingIdsRef.current.has(p.id)));
 
@@ -203,7 +230,15 @@ const RoomScreen = () => {
       setToolSelectedId(null);
     });
 
-    return unsub;
+    const unsubFocus = navigation.addListener("focus", () => {
+      // ✅ رجعت للـ RoomScreen بعد المودال -> خلّي أي blur لاحق يشتغل طبيعي
+      skipClearOnBlurRef.current = false;
+    });
+
+    return () => {
+      unsubBlur();
+      unsubFocus();
+    };
   }, [navigation]);
 
   const selectedFs = useMemo(() => {
@@ -227,6 +262,9 @@ const RoomScreen = () => {
     closeDetails();
 
     const info = devicesById[selected.id];
+
+    // ✅ NEW: فتح مودال = لا تمسح pending على blur
+    skipClearOnBlurRef.current = true;
 
     navigation.navigate("DeviceFormModal", {
       device: {
@@ -270,7 +308,113 @@ const RoomScreen = () => {
     const y = contentH * marginTop.value;
     const h = contentH * (1 - marginTop.value - marginBottom.value);
 
-    return { x, y, w, h, };
+    return { x, y, w, h };
+  };
+
+  const getFloorRoomBounds = (f: string, id: string) => {
+    if (f === "1") return FLOOR1_BOUNDS[id] ?? null;
+    if (f === "2") return FLOOR2_BOUNDS[id] ?? null;
+    if (f === "3") return FLOOR3_BOUNDS[id] ?? null;
+    return null;
+  };
+
+  const getViewBoxForRoom = (f: string, id: string) => {
+    if (f === "1") {
+      const b = FLOOR1_BOUNDS[id];
+      if (!b) return { x: 0, y: 0, w: 760, h: 1160 };
+
+      const minX = Math.max(0, b.x - FLOOR1_VB_PADDING);
+      const minY = Math.max(0, b.y - FLOOR1_VB_PADDING);
+
+      const w = Math.max(b.w + FLOOR1_VB_PADDING * 2, FLOOR1_VB_MIN_W);
+      const h = Math.max(b.h + FLOOR1_VB_PADDING * 2, FLOOR1_VB_MIN_H);
+
+      return { x: minX, y: minY, w, h };
+    }
+
+    if (f === "2") {
+      const b = FLOOR2_BOUNDS[id];
+      if (!b) return { x: 0, y: 0, w: 760, h: 1160 };
+
+      const minX = Math.max(0, b.x - FLOOR2_VB_PADDING);
+      const minY = Math.max(0, b.y - FLOOR2_VB_PADDING);
+
+      const w = Math.max(b.w + FLOOR2_VB_PADDING * 2, FLOOR2_VB_MIN_W);
+      const h = Math.max(b.h + FLOOR2_VB_PADDING * 2, FLOOR2_VB_MIN_H);
+
+      return { x: minX, y: minY, w, h };
+    }
+
+    if (f === "3") {
+      const b = FLOOR3_BOUNDS[id];
+      if (!b) return { x: 0, y: 0, w: 760, h: 1160 };
+
+      const minX = Math.max(0, b.x - FLOOR3_VB_PADDING);
+      const minY = Math.max(0, b.y - FLOOR3_VB_PADDING);
+
+      const w = Math.max(b.w + FLOOR3_VB_PADDING * 2, FLOOR3_VB_MIN_W);
+      const h = Math.max(b.h + FLOOR3_VB_PADDING * 2, FLOOR3_VB_MIN_H);
+
+      return { x: minX, y: minY, w, h };
+    }
+
+    return { x: 0, y: 0, w: 760, h: 1160 };
+  };
+
+  const getRoomRectContent = () => {
+    const contentW = stageW.value;
+    const contentH = stageH.value;
+    if (contentW <= 0 || contentH <= 0) return null;
+
+    const b = getFloorRoomBounds(floorId, roomId);
+    if (!b) return null;
+
+    const vb = getViewBoxForRoom(floorId, roomId);
+
+    const sx = contentW / vb.w;
+    const sy = contentH / vb.h;
+
+    const x = (b.x - vb.x) * sx;
+    const y = (b.y - vb.y) * sy;
+    const w = b.w * sx;
+    const h = b.h * sy;
+
+    return { x, y, w, h };
+  };
+
+  const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
+  const clampToRoomByPx = (px: number, py: number) => {
+    const r = getRoomRectContent();
+    if (!r) return null;
+
+    const pad = MARKER_SIZE / 2;
+
+    const minX = r.x + pad;
+    const maxX = r.x + r.w - pad;
+    const minY = r.y + pad;
+    const maxY = r.y + r.h - pad;
+
+    const cx = Math.min(Math.max(minX, px), maxX);
+    const cy = Math.min(Math.max(minY, py), maxY);
+
+    const nx = r.w > 0 ? clamp01((cx - r.x) / r.w) : 0.5;
+    const ny = r.h > 0 ? clamp01((cy - r.y) / r.h) : 0.5;
+
+    return { x: cx, y: cy, nx, ny };
+  };
+
+  const pxFromNorm = (nx: number, ny: number) => {
+    const r = getRoomRectContent();
+    if (!r) return null;
+
+    const x = r.x + r.w * clamp01(nx);
+    const y = r.y + r.h * clamp01(ny);
+
+    const clamped = clampToRoomByPx(x, y);
+    if (!clamped) return null;
+
+    return clamped;
   };
 
   const mapToDeviceType = (t: string): DeviceType => {
@@ -333,18 +477,34 @@ const RoomScreen = () => {
       const fsMap: Record<string, PlacedDevice> = {};
       const nextSaved: Record<string, { x: number; y: number }> = {};
 
+      const roomRect = getRoomRectContent();
+
       snap.forEach((docSnap) => {
         const d: any = docSnap.data();
         const xVal = d?.x;
         const yVal = d?.y;
         if (typeof xVal !== "number" || typeof yVal !== "number") return;
 
-        nextSaved[docSnap.id] = { x: xVal, y: yVal };
+        // ✅ الجديد: نخزن nx/ny (0..1). القديم كان pixels (>1) -> نحاول نحوله إلى nx/ny حسب roomRect الحالي
+        let nx = xVal;
+        let ny = yVal;
+
+        const looksNormalized = xVal >= 0 && xVal <= 1 && yVal >= 0 && yVal <= 1;
+
+        if (!looksNormalized && roomRect) {
+          nx = roomRect.w > 0 ? clamp01((xVal - roomRect.x) / roomRect.w) : 0.5;
+          ny = roomRect.h > 0 ? clamp01((yVal - roomRect.y) / roomRect.h) : 0.5;
+        }
+
+        const pos = pxFromNorm(nx, ny);
+        if (!pos) return;
+
+        nextSaved[docSnap.id] = { x: nx, y: ny };
 
         const typeRaw = d?.type ? String(d.type) : "";
         const type = mapToDeviceType(typeRaw);
 
-        fsMap[docSnap.id] = { id: docSnap.id, type, x: xVal, y: yVal };
+        fsMap[docSnap.id] = { id: docSnap.id, type, x: pos.x, y: pos.y, nx: pos.nx, ny: pos.ny };
       });
 
       setSavedById(nextSaved);
@@ -370,7 +530,7 @@ const RoomScreen = () => {
     });
 
     return () => unsub();
-  }, [roomId]);
+  }, [roomId, floorId, stageBox.x, stageBox.y, stageBox.w, stageBox.h]);
 
   // ===== Drop device from toolbar =====
   // ✅ FIX: drop أسهل + snap للداخل + مضمون داخل الغرفة
@@ -382,7 +542,44 @@ const RoomScreen = () => {
     const localX0 = absX - stageBox.x;
     const localY0 = absY - stageBox.y;
 
-    // allowed داخل الـ content
+    const roomRect = getRoomRectContent();
+
+    // إذا عندنا bounds حقيقية للغرفة => نعتمد عليها
+    if (roomRect) {
+      const DROP_PAD = 26;
+
+      const insideNear =
+        localX0 >= roomRect.x - DROP_PAD &&
+        localX0 <= roomRect.x + roomRect.w + DROP_PAD &&
+        localY0 >= roomRect.y - DROP_PAD &&
+        localY0 <= roomRect.y + roomRect.h + DROP_PAD;
+
+      if (!insideNear) return;
+
+      const pos = clampToRoomByPx(localX0, localY0);
+      if (!pos) return;
+
+      // ✅ خزنه كـ pending ref (حتى ما يختفي)
+      pendingPlacedRef.current[deviceId] = { id: deviceId, type, x: pos.x, y: pos.y, nx: pos.nx, ny: pos.ny };
+
+      // ✅ حدّث الـ placed مباشرة (عرض الماركر)
+      setPlaced((prev) => {
+        const others = prev.filter((p) => p.id !== deviceId);
+        return [...others, { id: deviceId, type, x: pos.x, y: pos.y, nx: pos.nx, ny: pos.ny }];
+      });
+
+      // ✅ pending (تفعيل زر Save)
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.add(deviceId);
+        pendingIdsRef.current = next;
+        return next;
+      });
+
+      return;
+    }
+
+    // fallback (نفس منطقك القديم إذا ما عندنا bounds)
     const contentW = stageW.value;
     const contentH = stageH.value;
 
@@ -392,7 +589,6 @@ const RoomScreen = () => {
     const ay = contentH * marginTop.value;
     const ah = contentH * (1 - marginTop.value - marginBottom.value);
 
-    // وسّع منطقة الإسقاط (حتى ما تحتاج أكثر من محاولة)
     const DROP_PAD = 26;
 
     const insideNear =
@@ -403,7 +599,6 @@ const RoomScreen = () => {
 
     if (!insideNear) return;
 
-    // ✅ clamp داخل حدود الغرفة (نفس منطق السحب)
     const isMeetingRoom = rid.includes("meeting");
     const isStairs = rid.includes("stairs");
     const isCorridor = rid.includes("corridor");
@@ -428,16 +623,16 @@ const RoomScreen = () => {
     const clampedX = Math.min(Math.max(minX, localX0), maxX);
     const clampedY = Math.min(Math.max(minY, localY0), maxY);
 
-    // ✅ خزنه كـ pending ref (حتى ما يختفي)
-    pendingPlacedRef.current[deviceId] = { id: deviceId, type, x: clampedX, y: clampedY };
+    const nx = aw > 0 ? clamp01((clampedX - ax) / aw) : 0.5;
+    const ny = ah > 0 ? clamp01((clampedY - ay) / ah) : 0.5;
 
-    // ✅ حدّث الـ placed مباشرة (عرض الماركر)
+    pendingPlacedRef.current[deviceId] = { id: deviceId, type, x: clampedX, y: clampedY, nx, ny };
+
     setPlaced((prev) => {
       const others = prev.filter((p) => p.id !== deviceId);
-      return [...others, { id: deviceId, type, x: clampedX, y: clampedY }];
+      return [...others, { id: deviceId, type, x: clampedX, y: clampedY, nx, ny }];
     });
 
-    // ✅ pending (تفعيل زر Save)
     setPendingIds((prev) => {
       const next = new Set(prev);
       next.add(deviceId);
@@ -463,15 +658,14 @@ const RoomScreen = () => {
         batch.update(doc(db, "devices", id), {
           status: "active",
           roomId,
-          x: p.x,
-          y: p.y,
+          x: p.nx,
+          y: p.ny,
           updatedAt: serverTimestamp(),
         });
       });
 
       await batch.commit();
 
-      // بعد الكوميت، onSnapshot راح يشيلهم من pendingIds تلقائياً
       setPendingIds(() => {
         const next = new Set<string>();
         pendingIdsRef.current = next;
@@ -488,10 +682,38 @@ const RoomScreen = () => {
     async (id: string, x: number, y: number) => {
       if (!savedById[id]) return;
 
+      const roomRect = getRoomRectContent();
+      if (roomRect) {
+        const nx = roomRect.w > 0 ? clamp01((x - roomRect.x) / roomRect.w) : 0.5;
+        const ny = roomRect.h > 0 ? clamp01((y - roomRect.y) / roomRect.h) : 0.5;
+
+        try {
+          await updateDoc(doc(db, "devices", id), {
+            x: nx,
+            y: ny,
+            updatedAt: serverTimestamp(),
+          });
+        } catch {}
+
+        return;
+      }
+
+      const contentW = stageW.value;
+      const contentH = stageH.value;
+
+      const ax = contentW * marginX.value;
+      const aw = contentW * (1 - marginX.value * 2);
+
+      const ay = contentH * marginTop.value;
+      const ah = contentH * (1 - marginTop.value - marginBottom.value);
+
+      const nx = aw > 0 ? clamp01((x - ax) / aw) : 0.5;
+      const ny = ah > 0 ? clamp01((y - ay) / ah) : 0.5;
+
       try {
         await updateDoc(doc(db, "devices", id), {
-          x,
-          y,
+          x: nx,
+          y: ny,
           updatedAt: serverTimestamp(),
         });
       } catch {}
@@ -499,17 +721,63 @@ const RoomScreen = () => {
     [savedById]
   );
 
-  // update local position (بدون pending للأكتيف)
-  const updatePlacedLocal = (id: string, x: number, y: number) => {
-    setPlaced((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)));
+  // ✅ FIX: update local position بدون setState بكل فريم (نخليها عبر RAF scheduler)
+  const applyPlacedLocal = (id: string, x: number, y: number) => {
+    const roomRect = getRoomRectContent();
 
-    setPendingIds((prev) => {
-      if (savedById[id]) return prev;
-      const next = new Set(prev);
-      next.add(id);
-      pendingIdsRef.current = next;
-      pendingPlacedRef.current[id] = { id, type: placed.find((p) => p.id === id)?.type ?? "camera", x, y };
-      return next;
+    let nx = 0.5;
+    let ny = 0.5;
+
+    if (roomRect) {
+      nx = roomRect.w > 0 ? clamp01((x - roomRect.x) / roomRect.w) : 0.5;
+      ny = roomRect.h > 0 ? clamp01((y - roomRect.y) / roomRect.h) : 0.5;
+    } else {
+      const contentW = stageW.value;
+      const contentH = stageH.value;
+
+      const ax = contentW * marginX.value;
+      const aw = contentW * (1 - marginX.value * 2);
+
+      const ay = contentH * marginTop.value;
+      const ah = contentH * (1 - marginTop.value - marginBottom.value);
+
+      nx = aw > 0 ? clamp01((x - ax) / aw) : 0.5;
+      ny = ah > 0 ? clamp01((y - ay) / ah) : 0.5;
+    }
+
+    setPlaced((prev) => prev.map((p) => (p.id === id ? { ...p, x, y, nx, ny } : p)));
+
+    if (!savedById[id]) {
+      const t = placedRef.current.find((p) => p.id === id)?.type ?? "camera";
+      pendingPlacedRef.current[id] = { id, type: t, x, y, nx, ny };
+    }
+  };
+
+  const placedMoveRafRef = useRef<number | null>(null);
+  const placedMoveQueueRef = useRef<{ id: string; x: number; y: number } | null>(null);
+
+  const schedulePlacedLocal = (id: string, x: number, y: number) => {
+    placedMoveQueueRef.current = { id, x, y };
+    if (placedMoveRafRef.current != null) return;
+
+    placedMoveRafRef.current = requestAnimationFrame(() => {
+      placedMoveRafRef.current = null;
+      const q = placedMoveQueueRef.current;
+      if (!q) return;
+      applyPlacedLocal(q.id, q.x, q.y);
+    });
+  };
+
+  const dragRafRef = useRef<number | null>(null);
+  const dragQueueRef = useRef<{ id: string; type: DeviceType; x: number; y: number } | null>(null);
+
+  const scheduleDrag = (p: { id: string; type: DeviceType; x: number; y: number } | null) => {
+    dragQueueRef.current = p;
+    if (dragRafRef.current != null) return;
+
+    dragRafRef.current = requestAnimationFrame(() => {
+      dragRafRef.current = null;
+      setDrag(dragQueueRef.current);
     });
   };
 
@@ -568,17 +836,17 @@ const RoomScreen = () => {
     Gesture.Pan()
       .activateAfterLongPress(250)
       .onBegin((e) => {
-        runOnJS(setDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
+        runOnJS(scheduleDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
       })
       .onUpdate((e) => {
-        runOnJS(setDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
+        runOnJS(scheduleDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
       })
       .onEnd((e) => {
-        runOnJS(setDrag)(null);
+        runOnJS(scheduleDrag)(null);
         runOnJS(placeIfInside)(deviceId, type, e.absoluteX, e.absoluteY);
       })
       .onFinalize(() => {
-        runOnJS(setDrag)(null);
+        runOnJS(scheduleDrag)(null);
       });
 
   const dragStartX = useSharedValue(0);
@@ -592,23 +860,50 @@ const RoomScreen = () => {
       saveActivePosition(id, x, y);
     } else {
       // pending: حدّث ref حتى لو صار أي re-render
-      const p = placed.find((pp) => pp.id === id);
+      const p = placedRef.current.find((pp) => pp.id === id);
       if (p) pendingPlacedRef.current[id] = { ...p, x, y };
     }
   };
 
-  const makePlacedGesture = (id: string, startX: number, startY: number) =>
+  const makePlacedGesture = (id: string, startX: number, startY: number, type: DeviceType) =>
     Gesture.Pan()
-      .activateAfterLongPress(250)
+      .runOnJS(true) // ✅ مهم جداً: يمنع crash بسبب worklet
+      .minDistance(6)
       .onStart(() => {
         dragStartX.value = startX;
         dragStartY.value = startY;
         lastX.value = startX;
         lastY.value = startY;
+
+        placedDragX.value = startX;
+        placedDragY.value = startY;
+
+        setDraggingPlaced({ id, type });
       })
       .onUpdate((e) => {
         const nextX = dragStartX.value + e.translationX;
         const nextY = dragStartY.value + e.translationY;
+
+        const roomRect = getRoomRectContent();
+
+        if (roomRect) {
+          const pad = MARKER_SIZE / 2;
+
+          const minX = roomRect.x + pad;
+          const maxX = roomRect.x + roomRect.w - pad;
+          const minY = roomRect.y + pad;
+          const maxY = roomRect.y + roomRect.h - pad;
+
+          const clampedX = Math.min(Math.max(minX, nextX), maxX);
+          const clampedY = Math.min(Math.max(minY, nextY), maxY);
+
+          lastX.value = clampedX;
+          lastY.value = clampedY;
+
+          placedDragX.value = clampedX;
+          placedDragY.value = clampedY;
+          return;
+        }
 
         const contentW = stageW.value;
         const contentH = stageH.value;
@@ -646,11 +941,34 @@ const RoomScreen = () => {
         lastX.value = clampedX;
         lastY.value = clampedY;
 
-        runOnJS(updatePlacedLocal)(id, clampedX, clampedY);
+        placedDragX.value = clampedX;
+        placedDragY.value = clampedY;
       })
       .onEnd(() => {
-        runOnJS(onPlacedDragEnd)(id, lastX.value, lastY.value);
+        setDraggingPlaced(null);
+
+        applyPlacedLocal(id, lastX.value, lastY.value);
+        onPlacedDragEnd(id, lastX.value, lastY.value);
+      })
+      .onFinalize(() => {
+        setDraggingPlaced(null);
       });
+
+  const openDetailsById = (id: string) => {
+    const item = placedRef.current.find((p) => p.id === id);
+    if (!item) return;
+    openDetails(item);
+  };
+  const makePlacedTapGesture = (id: string) =>
+    Gesture.Tap()
+      .runOnJS(true)
+      .maxDistance(10)
+      .onEnd((_e, success) => {
+        if (success) openDetailsById(id);
+      });
+
+  const makePlacedCombinedGesture = (id: string, startX: number, startY: number, type: DeviceType) =>
+    Gesture.Exclusive(makePlacedGesture(id, startX, startY, type), makePlacedTapGesture(id));
 
   // ===== Icons =====
   const getTypeIconFromDefs = (typeRaw?: string) => {
@@ -670,20 +988,27 @@ const RoomScreen = () => {
     const typeRaw = devicesById[deviceId]?.typeRaw;
     const icon = getTypeIconFromDefs(typeRaw) ?? fallbackIconByDeviceType(fallbackType);
 
-    return <MaterialCommunityIcons name={icon} size={22} color="#111827" />;
+    return <MaterialCommunityIcons name={icon} size={22} color="#2563EB" />;
   };
 
   const renderMarkerIcon = (deviceId: string, fallbackType: DeviceType, size: number) => {
     const typeRaw = devicesById[deviceId]?.typeRaw;
     const icon = getTypeIconFromDefs(typeRaw) ?? fallbackIconByDeviceType(fallbackType);
 
-    return <MaterialCommunityIcons name={icon} size={size} color="#111827" />;
+    return <MaterialCommunityIcons name={icon} size={size} color="#2563EB" />;
   };
 
   const renderGhostIcon = (type: DeviceType) => {
     const icon = fallbackIconByDeviceType(type);
-    return <MaterialCommunityIcons name={icon} size={18} color="#111827" />;
+    return <MaterialCommunityIcons name={icon} size={18} color="#2563EB" />;
   };
+
+  const placedGhostStyle = useAnimatedStyle(() => {
+    return {
+      left: placedDragX.value - MARKER_SIZE / 2,
+      top: placedDragY.value - MARKER_SIZE / 2,
+    };
+  });
 
   return (
     <View style={styles.root}>
@@ -750,13 +1075,16 @@ const RoomScreen = () => {
 
           <Pressable
             style={styles.addBtn}
-            onPress={() =>
+            onPress={() => {
+              // ✅ NEW: فتح مودال = لا تمسح pending على blur
+              skipClearOnBlurRef.current = true;
+
               navigation.navigate("DeviceFormModal", {
                 floorId,
                 roomId,
                 returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } },
-              })
-            }
+              });
+            }}
           >
             <Ionicons name="add" size={22} color="#111827" />
           </Pressable>
@@ -768,22 +1096,32 @@ const RoomScreen = () => {
           <View style={styles.canvas}>
             {content}
 
-            {placed.map((d) => (
-              <GestureDetector key={d.id} gesture={makePlacedGesture(d.id, d.x, d.y)}>
-                <Pressable
-                  onPress={() => openDetails(d)}
-                  style={[
-                    styles.marker,
-                    {
-                      left: d.x - MARKER_SIZE / 2,
-                      top: d.y - MARKER_SIZE / 2,
-                    },
-                  ]}
-                >
-                  {renderMarkerIcon(d.id, d.type, 18)}
-                </Pressable>
-              </GestureDetector>
-            ))}
+            {placed.map((d) => {
+              const isDraggingThis = draggingPlaced?.id === d.id;
+
+              return (
+                <GestureDetector key={d.id} gesture={makePlacedCombinedGesture(d.id, d.x, d.y, d.type)}>
+                  <View
+                    style={[
+                      styles.marker,
+                      {
+                        left: d.x - MARKER_SIZE / 2,
+                        top: d.y - MARKER_SIZE / 2,
+                        opacity: isDraggingThis ? 0 : 1,
+                      },
+                    ]}
+                  >
+                    {renderMarkerIcon(d.id, d.type, 18)}
+                  </View>
+                </GestureDetector>
+              );
+            })}
+
+            {draggingPlaced && (
+              <Animated.View pointerEvents="none" style={[styles.ghost, placedGhostStyle]}>
+                {renderMarkerIcon(draggingPlaced.id, draggingPlaced.type, 18)}
+              </Animated.View>
+            )}
           </View>
         </Animated.View>
 

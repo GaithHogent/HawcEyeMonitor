@@ -1,4 +1,5 @@
-import React from "react";
+// src/components/full-floor-map-screen/Floor2Svg.tsx
+import React, { useMemo } from "react";
 import Svg, { G, Rect, Text } from "react-native-svg";
 
 type Props = {
@@ -6,46 +7,122 @@ type Props = {
   onlyRoomId?: string;
 };
 
+type RoomDef = {
+  id: string;
+  label: string;
+  fill: string;
+  rect: { x: number; y: number; w: number; h: number; rx?: number };
+  labelPos?: { x: number; y: number; anchor?: "start" | "middle" | "end" };
+  door?: { x: number; y: number; w: number; h: number };
+};
+
+// ===== ViewBox config =====
+export const FLOOR2_VB_PADDING = 80;
+export const FLOOR2_VB_MIN_W = 300;
+export const FLOOR2_VB_MIN_H = 300;
+
+const FLOOR_W = 760;
+const FLOOR_H = 1160;
+
+// ===== Rooms definition (نفس إحداثياتك) =====
+const ROOMS: RoomDef[] = [
+  {
+    id: "corridor",
+    label: "Corridor",
+    fill: "#eef2f7",
+    rect: { x: 340, y: 40, w: 120, h: 1080, rx: 6 },
+    labelPos: { x: 340 + 120 / 2, y: 40 + 1080 / 2, anchor: "middle" },
+  },
+  {
+    id: "meeting-c",
+    label: "Meeting Room C",
+    fill: "#f9fbff",
+    rect: { x: 60, y: 600, w: 260, h: 520, rx: 8 },
+    labelPos: { x: 190, y: 860, anchor: "middle" },
+    door: { x: 320, y: 626, w: 20, h: 24 },
+  },
+  {
+    id: "meeting-d",
+    label: "Meeting Room D",
+    fill: "#f9fbff",
+    rect: { x: 60, y: 40, w: 260, h: 520, rx: 8 },
+    labelPos: { x: 190, y: 300, anchor: "middle" },
+    door: { x: 320, y: 506, w: 20, h: 24 },
+  },
+  {
+    id: "office-201",
+    label: "Room 201",
+    fill: "#f9fbff",
+    rect: { x: 460, y: 770, w: 220, h: 350, rx: 8 },
+    labelPos: { x: 570, y: 960, anchor: "middle" },
+    door: { x: 440, y: 786, w: 20, h: 24 },
+  },
+  {
+    id: "office-202",
+    label: "Room 202",
+    fill: "#f9fbff",
+    rect: { x: 460, y: 410, w: 220, h: 350, rx: 8 },
+    labelPos: { x: 570, y: 600, anchor: "middle" },
+    door: { x: 440, y: 726, w: 20, h: 24 },
+  },
+  {
+    id: "office-203",
+    label: "Room 203",
+    fill: "#f9fbff",
+    rect: { x: 460, y: 40, w: 220, h: 360, rx: 8 },
+    labelPos: { x: 570, y: 240, anchor: "middle" },
+    door: { x: 440, y: 366, w: 20, h: 24 },
+  },
+  {
+    id: "restroom",
+    label: "WC",
+    fill: "#f7f0e6",
+    rect: { x: 340, y: 960, w: 120, h: 160, rx: 6 },
+    labelPos: { x: 405, y: 1040, anchor: "middle" },
+    door: { x: 430, y: 936, w: 20, h: 24 },
+  },
+  {
+    id: "stairs",
+    label: "Stairs",
+    fill: "#dde6f7",
+    rect: { x: 340, y: 40, w: 120, h: 160, rx: 6 },
+    labelPos: { x: 405, y: 120, anchor: "middle" },
+  },
+];
+
+// ===== Export bounds for clamping devices inside rooms =====
+export const FLOOR2_BOUNDS: Record<string, { x: number; y: number; w: number; h: number }> = ROOMS.reduce(
+  (acc, r) => {
+    acc[r.id] = { x: r.rect.x, y: r.rect.y, w: r.rect.w, h: r.rect.h };
+    return acc;
+  },
+  {} as Record<string, { x: number; y: number; w: number; h: number }>
+);
+
 export default function Floor2Svg({ onRoomPress, onlyRoomId }: Props) {
   const showAll = !onlyRoomId;
   const show = (id: string) => showAll || onlyRoomId === id;
 
-  // حدود كل غرفة (من القيم الموجودة في الـ Rects)
-  const bounds: Record<string, { x: number; y: number; w: number; h: number }> = {
-    "meeting-c": { x: 60,  y: 600, w: 260, h: 520 },
-    "meeting-d": { x: 60,  y: 40,  w: 260, h: 520 },
-    "office-201": { x: 440, y: 670, w: 220, h: 550 },
-    "office-202": { x: 460, y: 410, w: 220, h: 350 },
-    "office-203": { x: 460, y: 40,  w: 220, h: 360 },
-    "restroom":   { x: 340, y: 860, w: 120, h: 360 },
-    "stairs":     { x: 340, y: 40,  w: 120, h: 160 },
-   "corridor": { x: 140, y: 100, w: 520, h: 1080 },
+  const vb = useMemo(() => {
+    if (onlyRoomId && FLOOR2_BOUNDS[onlyRoomId]) {
+      const b = FLOOR2_BOUNDS[onlyRoomId];
+      const pad = FLOOR2_VB_PADDING;
 
-  };
+      const minX = Math.max(0, b.x - pad);
+      const minY = Math.max(0, b.y - pad);
 
-  const padding = 80;
-
-    const vb = onlyRoomId && bounds[onlyRoomId]
-  ? (() => {
-      const b = bounds[onlyRoomId];
-
-      const minX = Math.max(0, b.x - padding);
-      const minY = Math.max(0, b.y - padding);
-
-      const minW = 300;
-      const minH = 300;
-
-      const w = Math.max(b.w + padding * 2, minW);
-      const h = Math.max(b.h + padding * 2, minH);
+      const w = Math.max(b.w + pad * 2, FLOOR2_VB_MIN_W);
+      const h = Math.max(b.h + pad * 2, FLOOR2_VB_MIN_H);
 
       return `${minX} ${minY} ${w} ${h}`;
-    })()
-  : "0 0 760 1160";
+    }
 
+    return `0 0 ${FLOOR_W} ${FLOOR_H}`;
+  }, [onlyRoomId]);
 
   return (
-    <Svg viewBox={vb} width="100%" height="100%">
-      {/* حدود الطابق (نخفيه عند عرض عنصر واحد) */}
+   <Svg viewBox={vb} width="100%" height="100%" preserveAspectRatio="none">
+      {/* حدود الطابق (نخفيه عند عرض غرفة واحدة) */}
       {showAll && (
         <Rect
           id="boundary"
@@ -54,230 +131,44 @@ export default function Floor2Svg({ onRoomPress, onlyRoomId }: Props) {
           strokeWidth={2}
           x={0}
           y={0}
-          width={760}
-          height={1160}
+          width={FLOOR_W}
+          height={FLOOR_H}
         />
       )}
 
-      {/* الممر */}
-      {/* الممر */}
-{/* الممر */}
-{/* الممر */}
-{(showAll || onlyRoomId === "corridor") && (
-  <G id="corridor" onPress={() => onRoomPress?.("corridor")}>
-    <Rect
-      fill="#eef2f7"
-      stroke="#1a1f36"
-      strokeWidth={2}
-      x={340}
-      y={40}
-      width={120}
-      height={1080}
-      rx={6}
-    />
-    <Text
-      fontFamily="Arial, Helvetica, sans-serif"
-      fontSize={20}
-      fill="#1a1f36"
-      x={340 + 120 / 2}
-      y={40 + 1080 / 2}
-      textAnchor="middle"
-    >
-      Corridor
-    </Text>
-  </G>
-)}
+      {ROOMS.map((r) => {
+        if (!show(r.id)) return null;
 
+        const { x, y, w, h, rx } = r.rect;
 
+        return (
+          <G key={r.id} id={r.id} onPress={() => onRoomPress?.(r.id)}>
+            <Rect
+              fill={r.fill}
+              stroke="#1a1f36"
+              strokeWidth={2}
+              x={x}
+              y={y}
+              width={w}
+              height={h}
+              rx={rx ?? 0}
+            />
 
+            <Text
+              fontFamily="Arial, Helvetica, sans-serif"
+              fontSize={20}
+              fill="#1a1f36"
+              x={r.labelPos?.x ?? x + w / 2}
+              y={r.labelPos?.y ?? y + h / 2}
+              textAnchor={r.labelPos?.anchor ?? "middle"}
+            >
+              {r.label}
+            </Text>
 
-      {/* Meeting Room C */}
-      {show("meeting-c") && (
-        <G id="meeting-c" onPress={() => onRoomPress?.("meeting-c")}>
-          <Rect
-            fill="#f9fbff"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={60}
-            y={600}
-            width={260}
-            height={520}
-            rx={8}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={190}
-            y={860}
-            textAnchor="middle"
-          >
-            Meeting Room C
-          </Text>
-          <Rect fill="#1a1f36" x={320} y={626} width={20} height={24} />
-        </G>
-      )}
-
-      {/* Meeting Room D */}
-      {show("meeting-d") && (
-        <G id="meeting-d" onPress={() => onRoomPress?.("meeting-d")}>
-          <Rect
-            fill="#f9fbff"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={60}
-            y={40}
-            width={260}
-            height={520}
-            rx={8}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={190}
-            y={300}
-            textAnchor="middle"
-          >
-            Meeting Room D
-          </Text>
-          <Rect fill="#1a1f36" x={320} y={506} width={20} height={24} />
-        </G>
-      )}
-
-      {/* Room 201 */}
-      {show("office-201") && (
-        <G id="office-201" onPress={() => onRoomPress?.("office-201")}>
-          <Rect
-            fill="#f9fbff"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={460}
-            y={770}
-            width={220}
-            height={350}
-            rx={8}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={570}
-            y={960}
-            textAnchor="middle"
-          >
-            Room 201
-          </Text>
-          <Rect fill="#1a1f36" x={440} y={786} width={20} height={24} />
-        </G>
-      )}
-
-      {/* Room 202 */}
-      {show("office-202") && (
-        <G id="office-202" onPress={() => onRoomPress?.("office-202")}>
-          <Rect
-            fill="#f9fbff"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={460}
-            y={410}
-            width={220}
-            height={350}
-            rx={8}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={570}
-            y={600}
-            textAnchor="middle"
-          >
-            Room 202
-          </Text>
-          <Rect fill="#1a1f36" x={440} y={726} width={20} height={24} />
-        </G>
-      )}
-
-      {/* Room 203 */}
-      {show("office-203") && (
-        <G id="office-203" onPress={() => onRoomPress?.("office-203")}>
-          <Rect
-            fill="#f9fbff"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={460}
-            y={40}
-            width={220}
-            height={360}
-            rx={8}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={570}
-            y={240}
-            textAnchor="middle"
-          >
-            Room 203
-          </Text>
-          <Rect fill="#1a1f36" x={440} y={366} width={20} height={24} />
-        </G>
-      )}
-
-      {/* WC */}
-      {show("restroom") && (
-        <G id="restroom" onPress={() => onRoomPress?.("restroom")}>
-          <Rect
-            fill="#f7f0e6"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={340}
-            y={960}
-            width={120}
-            height={160}
-            rx={6}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={405}
-            y={1040}
-            textAnchor="middle"
-          >
-            WC
-          </Text>
-          <Rect fill="#1a1f36" x={430} y={936} width={20} height={24} />
-        </G>
-      )}
-
-      {/* Stairs */}
-      {show("stairs") && (
-        <G id="stairs" onPress={() => onRoomPress?.("stairs")}>
-          <Rect
-            fill="#dde6f7"
-            stroke="#1a1f36"
-            strokeWidth={2}
-            x={340}
-            y={40}
-            width={120}
-            height={160}
-            rx={6}
-          />
-          <Text
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontSize={20}
-            fill="#1a1f36"
-            x={405}
-            y={120}
-            textAnchor="middle"
-          >
-            Stairs
-          </Text>
-        </G>
-      )}
+            {r.door && <Rect fill="#1a1f36" x={r.door.x} y={r.door.y} width={r.door.w} height={r.door.h} />}
+          </G>
+        );
+      })}
     </Svg>
   );
 }
