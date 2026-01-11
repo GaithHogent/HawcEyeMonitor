@@ -6,7 +6,7 @@ import type { TabParamsList } from "./types";
 import DashboardStackNavigator from "./AppStackNavigator";
 import MapStackNavigator from "./MapStackNavigator";
 import DevicesStackNavigator from "./DevicesStackNavigator";
-import SettingsScreen from "../screens/SettingsScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { subscribeDevices } from "../services/devices.service";
@@ -79,12 +79,12 @@ export default function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
+        name="Profile"
+        component={ProfileScreen}
         options={{
-          tabBarLabel: "Settings",
+          tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="cog" color={color} size={size} />
+            <MaterialCommunityIcons name="account" color={color} size={size} />
           ),
         }}
       />

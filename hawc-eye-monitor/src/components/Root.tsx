@@ -43,8 +43,8 @@ const Root = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <NavigationContainer>
-          {/*user ? <RootNavigator /> : <AuthStack />*/}
-          <RootNavigator />
+          {user ? <RootNavigator /> : <AuthStack />}
+         {/*<RootNavigator />*/}
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
