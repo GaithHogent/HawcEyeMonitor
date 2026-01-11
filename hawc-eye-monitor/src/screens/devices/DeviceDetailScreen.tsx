@@ -1,11 +1,12 @@
 // src/screens/devices/DeviceDetailScreen.tsx
 import { useMemo, useState, useEffect } from "react";
-import { View, Text, Pressable, Alert, ActivityIndicator } from "react-native";
+import { View, Text, Alert, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
 import type { DeviceItem } from "../../types/device";
 import { removeDevice, subscribeDevice, resolveDeviceIssue } from "../../services/devices.service";
+import Button from "../../components/Button";
 
 type R = RouteProp<DevicesStackParamsList, "DeviceDetail">;
 
@@ -153,39 +154,45 @@ const DeviceDetailScreen = () => {
       </View>
 
       <View className="mt-4 flex-row gap-3">
-        <Pressable
-          onPress={() => navigation.navigate("DeviceForm", { device })}
-          className="flex-1 h-12 rounded-xl items-center justify-center bg-gray-900"
-        >
-          <Text className="text-white font-semibold">Edit</Text>
-        </Pressable>
+        <View className="flex-1">
+          <Button
+            label="Edit"
+            onPress={() => navigation.navigate("DeviceForm", { device })}
+            variant="primary"
+          />
+        </View>
 
         {(device.status === "active" || device.status === "inactive") && (
-          <Pressable
-            onPress={() => navigation.navigate("ReportIssue", { deviceId: device.id })}
-            className="flex-1 h-12 rounded-xl items-center justify-center bg-red-500"
-          >
-            <Text className="text-white font-semibold">Report Issue</Text>
-          </Pressable>
+          <View className="flex-1">
+            <Button
+              label="Report Issue"
+              onPress={() => navigation.navigate("ReportIssue", { deviceId: device.id })}
+              variant="danger"
+            />
+          </View>
         )}
 
         {device.status === "issue" && (
-          <Pressable
-            onPress={onResolve}
-            disabled={resolving}
-            className="flex-1 h-12 rounded-xl items-center justify-center bg-green-600"
-          >
-            {resolving ? <ActivityIndicator /> : <Text className="text-white font-semibold">Resolved</Text>}
-          </Pressable>
+          <View className="flex-1">
+            <Button
+              label={resolving ? "" : "Resolved"}
+              onPress={onResolve}
+              disabled={resolving}
+              variant="success"
+            />
+            {resolving && <ActivityIndicator className="absolute self-center top-3" />}
+          </View>
         )}
 
-        <Pressable
-          onPress={onDelete}
-          disabled={deleting}
-          className="flex-1 h-12 rounded-xl items-center justify-center bg-red-600"
-        >
-          {deleting ? <ActivityIndicator /> : <Text className="text-white font-semibold">Delete</Text>}
-        </Pressable>
+        <View className="flex-1">
+          <Button
+            label={deleting ? "" : "Delete"}
+            onPress={onDelete}
+            disabled={deleting}
+            variant="danger"
+          />
+          {deleting && <ActivityIndicator className="absolute self-center top-3" />}
+        </View>
       </View>
     </View>
   );

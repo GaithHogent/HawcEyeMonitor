@@ -1,6 +1,6 @@
 // src/screens/devices/DevicesListScreen.tsx
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { DevicesStackNavProps } from "../../navigators/types";
 import type { DeviceItem } from "../../types/device";
@@ -8,6 +8,7 @@ import { subscribeDevices } from "../../services/devices.service";
 import { DEVICE_STATUSES } from "../../types/deviceStatuses";
 import Header from "../../components/Header";
 import DeviceListItem from "../../components/devices/DeviceListItem";
+import Button from "../../components/Button";
 
 const DevicesListScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"DevicesList">["navigation"]>();
@@ -77,12 +78,12 @@ const DevicesListScreen = () => {
       />
 
       <View className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
-        <Pressable
+        <Button
+          label="Add Device"
           onPress={() => navigation.navigate("DeviceForm")}
-          className="h-12 rounded-xl items-center justify-center bg-blue-600"
-        >
-          <Text className="text-white font-semibold">Add Device</Text>
-        </Pressable>
+          variant="primary"
+          className="w-full"
+        />
       </View>
     </View>
   );

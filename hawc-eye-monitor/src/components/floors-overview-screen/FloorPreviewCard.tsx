@@ -1,5 +1,6 @@
 // src/components/floors-overview-screen/FloorPreviewCard.tsx
-import { View, Text, Image, TouchableOpacity, StyleSheet, ImageSourcePropType } from "react-native";
+import { View, Text, Image, ImageSourcePropType } from "react-native";
+import Button from "../Button";
 
 type Props = {
   image: ImageSourcePropType;
@@ -7,54 +8,16 @@ type Props = {
   onView?: () => void;
 };
 
-export default function FloorPreviewCard({ image, title, onView }: Props) {
+const FloorPreviewCard = ({ image, title, onView }: Props) => {
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{title}</Text>
-      <Image source={image} style={styles.image} />
-      <TouchableOpacity style={styles.btn} onPress={onView}>
-        <Text style={styles.btnText}>View Map</Text>
-      </TouchableOpacity>
+    <View className="w-full bg-white rounded-[14px] p-2.5 mb-3.5 shadow-sm">
+      <Text className="text-center text-base font-bold text-blue-600 mb-1.5">{title}</Text>
+      <Image source={image} className="w-full h-[110px] rounded-[10px] resize-cover" />
+      <View className="mt-2 self-center">
+        <Button label="View Map" onPress={onView ?? (() => {})} className="h-10" />
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    width: "100%",
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 10,
-    marginBottom: 14,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-  },
-  title: {
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#0d7ff2",
-    marginBottom: 6,
-  },
-  image: {
-    width: "100%",
-    height: 110,
-    borderRadius: 10,
-    resizeMode: "cover",
-  },
-  btn: {
-    marginTop: 8,
-    alignSelf: "center",
-    backgroundColor: "#0d7ff2",
-    paddingVertical: 7,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-  },
-  btnText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 13,
-  },
-});
+export default FloorPreviewCard;

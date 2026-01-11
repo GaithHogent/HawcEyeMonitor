@@ -1,10 +1,11 @@
 // src/screens/devices/ReportIssueScreen.tsx
-import { View, Text, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TextInput, ActivityIndicator, Alert } from "react-native";
 import { useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
 import { reportDeviceIssue } from "../../services/devices.service";
+import Button from "../../components/Button";
 
 type R = RouteProp<DevicesStackParamsList, "ReportIssue">;
 
@@ -65,13 +66,18 @@ const ReportIssueScreen = () => {
       </View>
 
       <View className="mt-4">
-        <Pressable
+        <Button
+          label="Submit Issue"
           onPress={onSubmit}
           disabled={saving}
-          className="h-12 rounded-xl items-center justify-center bg-red-600"
-        >
-          {saving ? <ActivityIndicator /> : <Text className="text-white font-semibold">Submit Issue</Text>}
-        </Pressable>
+          variant="danger"
+          className="w-full"
+        />
+        {saving ? (
+          <View className="absolute inset-0 items-center justify-center">
+            <ActivityIndicator />
+          </View>
+        ) : null}
       </View>
     </View>
   );

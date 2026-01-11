@@ -1,4 +1,5 @@
-import { View, Text, TextInput, Pressable, ActivityIndicator } from "react-native";
+// src/screens/devices/DeviceFormScreen.tsx
+import { View, Text, TextInput, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
@@ -8,6 +9,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import DeviceTypeSelect from "../../components/devices/DeviceTypeSelect";
 import { DEVICE_STATUSES } from "../../types/deviceStatuses";
+import Button from "../../components/Button";
 
 type R = RouteProp<DevicesStackParamsList, "DeviceForm">;
 
@@ -24,18 +26,17 @@ const DeviceFormScreen = () => {
   const isEdit = !!editDevice;
 
   const finish = () => {
-    // ✅ بس سكّر المودال — لا تسوي أي Navigate ثاني (هذا اللي كان يسبب الرمش)
     navigation.goBack();
   };
 
   const initialValues = {
-    description: editDevice?.name ?? "", // name is used as description
+    description: editDevice?.name ?? "",
     type: editDevice?.type ?? "",
   };
 
   const onSubmit = async (values: typeof initialValues) => {
     const payload: DeviceDoc = {
-      name: values.description.trim(), // store description in name
+      name: values.description.trim(),
       type: values.type,
       status: isEdit ? editDevice!.status : DEVICE_STATUSES.find((s) => s.key === "inactive")!.key,
     };
@@ -76,20 +77,17 @@ const DeviceFormScreen = () => {
               />
 
               <View className="mt-6">
-                <Pressable
+                <Button
+                  label={isEdit ? "Save Changes" : "Create Device"}
                   onPress={() => handleSubmit()}
                   disabled={isSubmitting}
-                  className={[
-                    "h-12 rounded-xl items-center justify-center",
-                    isSubmitting ? "bg-gray-300" : "bg-blue-600",
-                  ].join(" ")}
-                >
-                  {isSubmitting ? (
+                  className="w-full"
+                />
+                {isSubmitting ? (
+                  <View className="absolute inset-0 items-center justify-center">
                     <ActivityIndicator />
-                  ) : (
-                    <Text className="text-white font-semibold">{isEdit ? "Save Changes" : "Create Device"}</Text>
-                  )}
-                </Pressable>
+                  </View>
+                ) : null}
               </View>
             </>
           )}
