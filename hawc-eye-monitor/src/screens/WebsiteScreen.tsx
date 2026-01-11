@@ -1,10 +1,10 @@
 // src/screens/WebsiteScreen.tsx
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import { WebView } from "react-native-webview";
 
 const WebsiteScreen = () => {
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white">
       <WebView
         source={{ uri: "https://hawc-servers.com/en/" }}
         javaScriptEnabled
@@ -14,9 +14,5 @@ const WebsiteScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-});
 
 export default WebsiteScreen;

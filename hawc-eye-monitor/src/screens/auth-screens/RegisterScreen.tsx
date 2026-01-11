@@ -20,7 +20,7 @@ const schema = Yup.object({
     .required('Required'),
 });
 
-export default function RegisterScreen() {
+const RegisterScreen = () => {
   const passwordInputRef = useRef<TextInput | null>(null);
   const confirmPasswordInputRef = useRef<TextInput | null>(null);
 
@@ -141,3 +141,4 @@ export default function RegisterScreen() {
     </View>
   );
 }
+export default RegisterScreen;

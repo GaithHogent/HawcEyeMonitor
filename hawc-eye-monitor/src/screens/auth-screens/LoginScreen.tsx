@@ -18,7 +18,7 @@ const schema = Yup.object({
   password: Yup.string().min(6, 'Min 6 chars').required('Required'),
 });
 
-export default function LoginScreen() {
+const LoginScreen = () => {
   const passwordInputRef = useRef<TextInput | null>(null);
   const { top } = useSafeAreaInsets();
   const containerStyle = { paddingTop: top };
@@ -139,3 +139,4 @@ export default function LoginScreen() {
     </View>
   );
 }
+export default LoginScreen;

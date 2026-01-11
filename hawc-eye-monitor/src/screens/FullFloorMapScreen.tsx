@@ -1,5 +1,4 @@
 // src/screens/FullFloorMapScreen.tsx
-import { StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import Floor1Svg from "../components/full-floor-map-screen/Floor1Svg";
@@ -8,7 +7,7 @@ import Floor3Svg from "../components/full-floor-map-screen/Floor3Svg";
 
 type Params = { floorId: string };
 
-export default function FullFloorMapScreen() {
+const FullFloorMapScreen = () => {
   const navigation = useNavigation<any>();
   const { params } = useRoute<any>();
   const { floorId } = params as Params;
@@ -29,7 +28,4 @@ export default function FullFloorMapScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-});
+export default FullFloorMapScreen;
