@@ -8,7 +8,6 @@ type DeviceType = "camera" | "alarm" | "sprinkler" | "access";
 type PlacedDevice = { id: string; type: DeviceType; x: number; y: number; nx: number; ny: number };
 
 type Props = {
-  styles: any;
   stageRef: any;
   onStageLayout: () => void;
 
@@ -27,7 +26,6 @@ type Props = {
 };
 
 const RoomStage = ({
-  styles,
   stageRef,
   onStageLayout,
   content,
@@ -40,9 +38,9 @@ const RoomStage = ({
   placedGhostStyle,
 }: Props) => {
   return (
-    <View ref={stageRef} style={styles.stageWrap} onLayout={onStageLayout}>
-      <Animated.View style={styles.stage}>
-        <View style={styles.canvas}>
+    <View ref={stageRef} className="flex-1" onLayout={onStageLayout}>
+      <Animated.View className="flex-1">
+        <View className="flex-1">
           {content}
 
           {placed.map((d) => {
@@ -51,14 +49,12 @@ const RoomStage = ({
             return (
               <GestureDetector key={d.id} gesture={makePlacedCombinedGesture(d.id, d.x, d.y, d.type)}>
                 <View
-                  style={[
-                    styles.marker,
-                    {
-                      left: d.x - MARKER_SIZE / 2,
-                      top: d.y - MARKER_SIZE / 2,
-                      opacity: isDraggingThis ? 0 : 1,
-                    },
-                  ]}
+                  className="absolute w-[28px] h-[28px] rounded-[10px] bg-gray-100 items-center justify-center border border-gray-200"
+                  style={{
+                    left: d.x - MARKER_SIZE / 2,
+                    top: d.y - MARKER_SIZE / 2,
+                    opacity: isDraggingThis ? 0 : 1,
+                  }}
                 >
                   {renderMarkerIcon(d.id, d.type, 18)}
                 </View>
@@ -67,7 +63,11 @@ const RoomStage = ({
           })}
 
           {draggingPlaced && (
-            <Animated.View pointerEvents="none" style={[styles.ghost, placedGhostStyle]}>
+            <Animated.View
+              pointerEvents="none"
+              className="absolute w-[28px] h-[28px] rounded-[10px] bg-[rgba(243,244,246,0.9)] items-center justify-center border border-gray-200"
+              style={placedGhostStyle}
+            >
               {renderMarkerIcon(draggingPlaced.id, draggingPlaced.type, 18)}
             </Animated.View>
           )}
@@ -77,13 +77,11 @@ const RoomStage = ({
       {drag && (
         <View
           pointerEvents="none"
-          style={[
-            styles.ghost,
-            {
-              left: drag.x - MARKER_SIZE / 2,
-              top: drag.y - MARKER_SIZE / 2,
-            },
-          ]}
+          className="absolute w-[28px] h-[28px] rounded-[10px] bg-[rgba(243,244,246,0.9)] items-center justify-center border border-gray-200"
+          style={{
+            left: drag.x - MARKER_SIZE / 2,
+            top: drag.y - MARKER_SIZE / 2,
+          }}
         >
           {renderMarkerIcon(drag.id, drag.type, 18)}
         </View>

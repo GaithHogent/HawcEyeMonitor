@@ -6,7 +6,6 @@ import Button from "../Button";
 type FsDeviceInfo = { name?: string; typeRaw?: string; status?: string };
 
 type Props = {
-  styles: any;
   visible: boolean;
   deleting: boolean;
   selectedFs: FsDeviceInfo | null;
@@ -16,24 +15,24 @@ type Props = {
   onRemove: () => void;
 };
 
-const DeviceDetailsModal = ({ styles, visible, deleting, selectedFs, onClose, onEdit, onRemove }: Props) => {
+const DeviceDetailsModal = ({ visible, deleting, selectedFs, onClose, onEdit, onRemove }: Props) => {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.modalBackdrop} onPress={onClose}>
-        <Pressable style={styles.modalCard} onPress={() => {}}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Device details</Text>
+      <Pressable className="flex-1 bg-[rgba(0,0,0,0.35)] p-5 justify-center" onPress={onClose}>
+        <Pressable className="bg-white rounded-[14px] p-4" onPress={() => {}}>
+          <View className="flex-row items-center justify-between mb-[10px]">
+            <Text className="text-[16px] font-bold text-gray-900 mb-[10px]">Device details</Text>
 
-            <Pressable style={styles.modalCloseBtn} onPress={onClose} hitSlop={10}>
+            <Pressable className="w-8 h-8 rounded-[10px] items-center justify-center bg-gray-100" onPress={onClose} hitSlop={10}>
               <Ionicons name="close" size={18} color="#111827" />
             </Pressable>
           </View>
 
-          <Text style={styles.modalRow}>Name: {selectedFs?.name ?? "-"}</Text>
-          <Text style={styles.modalRow}>Type: {selectedFs?.typeRaw ?? "-"}</Text>
-          <Text style={styles.modalRow}>Status: {selectedFs?.status ?? "-"}</Text>
+          <Text className="text-[14px] text-gray-700 mb-1.5">Name: {selectedFs?.name ?? "-"}</Text>
+          <Text className="text-[14px] text-gray-700 mb-1.5">Type: {selectedFs?.typeRaw ?? "-"}</Text>
+          <Text className="text-[14px] text-gray-700 mb-1.5">Status: {selectedFs?.status ?? "-"}</Text>
 
-          <View style={styles.modalActions}>
+          <View className="flex-row gap-[10px] mt-3.5">
             <Button label="Edit" onPress={onEdit} variant="outline" disabled={deleting} />
             <Button label={deleting ? "Removing..." : "Remove form this room"} onPress={onRemove} disabled={deleting} />
           </View>

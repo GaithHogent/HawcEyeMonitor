@@ -1,6 +1,6 @@
 // src/screens/RoomScreen.tsx
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Animated, { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
@@ -1015,9 +1015,8 @@ const RoomScreen = () => {
   });
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-white overflow-hidden">
       <RoomToolbar
-        styles={styles}
         toolSelected={toolSelected}
         toolSelectedId={toolSelectedId}
         setToolSelectedId={setToolSelectedId}
@@ -1047,7 +1046,6 @@ const RoomScreen = () => {
       />
 
       <RoomStage
-        styles={styles}
         stageRef={stageRef}
         onStageLayout={onStageLayout}
         content={content}
@@ -1061,12 +1059,11 @@ const RoomScreen = () => {
       />
 
       {/* ✅ Save button */}
-      <View style={styles.saveBar}>
+      <View className="border-t border-gray-200 bg-white px-3 py-2.5">
         <Button label={saving ? "Saving..." : "Save"} onPress={onSaveAll} disabled={saving || pendingIds.size === 0} />
       </View>
 
       <DeviceDetailsModal
-        styles={styles}
         visible={detailsOpen}
         deleting={deleting}
         selectedFs={selectedFs}
@@ -1079,174 +1076,3 @@ const RoomScreen = () => {
 };
 
 export default RoomScreen;
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff", overflow: "hidden" },
-
-  toolDetailsBar: {
-    minHeight: 54,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-    backgroundColor: "#fff",
-  },
-  toolDetailsLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    flex: 1,
-    paddingRight: 10,
-  },
-  toolDetailsIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f4f6",
-  },
-  toolDetailsText: { flex: 1 },
-  toolDetailsTitle: { fontSize: 14, fontWeight: "800", color: "#111827" },
-  toolDetailsDesc: { fontSize: 12, color: "#6b7280", marginTop: 2 },
-  toolDetailsClose: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f4f6",
-  },
-
-  toolbar: {
-    height: TOOLBAR_H,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-    backgroundColor: "#fff",
-  },
-  toolbarRow: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    position: "relative",
-  },
-  toolbarScroll: {
-    flex: 1,
-    marginRight: 10,
-  },
-  toolbarScrollContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    height: TOOLBAR_H,
-    paddingRight: 6,
-  },
-
-  // ✅ NEW: full-length custom scrollbar
-  toolbarIndicatorWrap: {
-    position: "absolute",
-    left: 12,
-    right: 62,
-    bottom: 5,
-    height: 6,
-    justifyContent: "center",
-  },
-  toolbarIndicatorTrack: {
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#e5e7eb",
-    overflow: "hidden",
-  },
-  toolbarIndicatorThumb: {
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#93c5fd",
-    opacity: 0.85,
-  },
-
-  hidden: { opacity: 0 },
-
-  toolBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f4f6",
-  },
-  toolBtnActive: { borderWidth: 1, borderColor: "#111827" },
-  addBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f4f6",
-  },
-
-  stageWrap: { flex: 1 },
-  stage: { flex: 1 },
-  canvas: { flex: 1 },
-
-  marker: {
-    position: "absolute",
-    width: MARKER_SIZE,
-    height: MARKER_SIZE,
-    borderRadius: 10,
-    backgroundColor: "#f3f4f6",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-  },
-
-  ghost: {
-    position: "absolute",
-    width: MARKER_SIZE,
-    height: MARKER_SIZE,
-    borderRadius: 10,
-    backgroundColor: "rgba(243,244,246,0.9)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-  },
-
-  saveBar: {
-    borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    padding: 20,
-    justifyContent: "center",
-  },
-  modalCard: { backgroundColor: "#fff", borderRadius: 14, padding: 16 },
-  modalTitle: { fontSize: 16, fontWeight: "700", color: "#111827", marginBottom: 10 },
-  modalRow: { fontSize: 14, color: "#374151", marginBottom: 6 },
-  modalActions: { flexDirection: "row", gap: 10, marginTop: 14 },
-
-  modalHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  modalCloseBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f4f6",
-  },
-});
