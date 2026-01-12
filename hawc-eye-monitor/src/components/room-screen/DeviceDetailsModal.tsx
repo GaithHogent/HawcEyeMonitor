@@ -13,9 +13,10 @@ type Props = {
   onClose: () => void;
   onEdit: () => void;
   onRemove: () => void;
+  onReportIssue: () => void;
 };
 
-const DeviceDetailsModal = ({ visible, deleting, selectedFs, onClose, onEdit, onRemove }: Props) => {
+const DeviceDetailsModal = ({ visible, deleting, selectedFs, onClose, onEdit, onRemove, onReportIssue }: Props) => {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-[rgba(0,0,0,0.35)] p-5 justify-center" onPress={onClose}>
@@ -34,6 +35,7 @@ const DeviceDetailsModal = ({ visible, deleting, selectedFs, onClose, onEdit, on
 
           <View className="flex-row gap-[10px] mt-3.5">
             <Button label="Edit" onPress={onEdit} variant="outline" disabled={deleting} />
+            <Button label="Report issue" onPress={onReportIssue} variant="danger" disabled={deleting} />
             <Button label={deleting ? "Removing..." : "Remove form this room"} onPress={onRemove} disabled={deleting} />
           </View>
         </Pressable>

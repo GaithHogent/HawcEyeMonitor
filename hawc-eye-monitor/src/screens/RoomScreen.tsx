@@ -281,6 +281,28 @@ const RoomScreen = () => {
     });
   };
 
+  const onReportIssueSelected = () => {
+    if (!selected) return;
+
+    closeDetails();
+
+    // ✅ NEW: فتح ReportIssue = لا تمسح pending على blur
+    skipClearOnBlurRef.current = true;
+
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.navigate("Devices", {
+        screen: "ReportIssue",
+        params: { deviceId: selected.id, returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } } },
+      });
+    } else {
+      navigation.navigate("Devices", {
+        screen: "ReportIssue",
+        params: { deviceId: selected.id, returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } } },
+      });
+    }
+  };
+
   const onStageLayout = () => {
     requestAnimationFrame(() => {
       stageRef.current?.measureInWindow((x, y, width, height) => {
@@ -475,7 +497,7 @@ const RoomScreen = () => {
 
   // ===== Firestore: الأجهزة الأكتيف داخل هالغرفة (حتى تبقى ثابتة) =====
   useEffect(() => {
-    const q = query(collection(db, "devices"), where("status", "==", "active"), where("roomId", "==", roomId));
+    const q = query(collection(db, "devices"), where("status", "in", ["active", "issue"]), where("roomId", "==", roomId));
 
     const unsub = onSnapshot(q, (snap) => {
       const fsMap: Record<string, PlacedDevice> = {};
@@ -1069,6 +1091,7 @@ const RoomScreen = () => {
         selectedFs={selectedFs}
         onClose={closeDetails}
         onEdit={onEditSelected}
+        onReportIssue={onReportIssueSelected}
         onRemove={onDeleteSelected}
       />
     </View>

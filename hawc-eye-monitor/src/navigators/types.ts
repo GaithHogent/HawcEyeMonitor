@@ -47,7 +47,14 @@ export type DevicesStackParamsList = {
   DeviceDetail: { device: DeviceItem };
   DeviceForm: { device: DeviceItem } | undefined;
   Alerts: undefined;
-  ReportIssue: { deviceId: string };
+  ReportIssue: {
+    deviceId: string;
+    returnTo?: {
+      tab: keyof TabParamsList;
+      screen?: string;
+      params?: any;
+    };
+  };
 };
 export type DevicesStackNavProps<T extends keyof DevicesStackParamsList> =
   StackScreenProps<DevicesStackParamsList, T>;

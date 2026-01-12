@@ -12,7 +12,7 @@ type R = RouteProp<DevicesStackParamsList, "ReportIssue">;
 const ReportIssueScreen = () => {
   const navigation = useNavigation<DevicesStackNavProps<"ReportIssue">["navigation"]>();
   const route = useRoute<R>();
-  const { deviceId } = route.params;
+  const { deviceId, returnTo } = route.params;
 
   const [issueType, setIssueType] = useState("");
   const [issueDescription, setIssueDescription] = useState("");
@@ -24,6 +24,15 @@ const ReportIssueScreen = () => {
     try {
       setSaving(true);
       await reportDeviceIssue(deviceId, issueType.trim(), issueDescription.trim());
+
+      if (returnTo) {
+        const parent = navigation.getParent();
+        if (parent) {
+          parent.navigate(returnTo.tab as any, returnTo.screen ? ({ screen: returnTo.screen, params: returnTo.params } as any) : undefined);
+          return;
+        }
+      }
+
       if (navigation.canGoBack()) {
         navigation.goBack();
       } else if (navigation.getParent()?.canGoBack()) {
