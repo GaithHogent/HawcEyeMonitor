@@ -2,7 +2,7 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { View, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import Animated, { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
+import { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -890,10 +890,12 @@ const RoomScreen = () => {
     Gesture.Pan()
       .activateAfterLongPress(250)
       .onBegin((e) => {
-        runOnJS(scheduleDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
+        // ✅ FIX: ghost داخل الـ stage يحتاج local coords وليس absolute
+        runOnJS(scheduleDrag)({ id: deviceId, type, x: e.absoluteX - stageBox.x, y: e.absoluteY - stageBox.y });
       })
       .onUpdate((e) => {
-        runOnJS(scheduleDrag)({ id: deviceId, type, x: e.absoluteX, y: e.absoluteY });
+        // ✅ FIX: ghost داخل الـ stage يحتاج local coords وليس absolute
+        runOnJS(scheduleDrag)({ id: deviceId, type, x: e.absoluteX - stageBox.x, y: e.absoluteY - stageBox.y });
       })
       .onEnd((e) => {
         runOnJS(scheduleDrag)(null);
@@ -913,9 +915,31 @@ const RoomScreen = () => {
     if (savedById[id]) {
       saveActivePosition(id, x, y);
     } else {
-      // pending: حدّث ref حتى لو صار أي re-render
-      const p = placedRef.current.find((pp) => pp.id === id);
-      if (p) pendingPlacedRef.current[id] = { ...p, x, y };
+      // ✅ FIX: لا تعتمد على placedRef (ممكن يكون قديم) -> احسب nx/ny من آخر x/y مباشرة
+      const roomRect = getRoomRectContent();
+
+      let nx = 0.5;
+      let ny = 0.5;
+
+      if (roomRect) {
+        nx = roomRect.w > 0 ? clamp01((x - roomRect.x) / roomRect.w) : 0.5;
+        ny = roomRect.h > 0 ? clamp01((y - roomRect.y) / roomRect.h) : 0.5;
+      } else {
+        const contentW = stageW.value;
+        const contentH = stageH.value;
+
+        const ax = contentW * marginX.value;
+        const aw = contentW * (1 - marginX.value * 2);
+
+        const ay = contentH * marginTop.value;
+        const ah = contentH * (1 - marginTop.value - marginBottom.value);
+
+        nx = aw > 0 ? clamp01((x - ax) / aw) : 0.5;
+        ny = ah > 0 ? clamp01((y - ay) / ah) : 0.5;
+      }
+
+      const t = placedRef.current.find((pp) => pp.id === id)?.type ?? "camera";
+      pendingPlacedRef.current[id] = { id, type: t, x, y, nx, ny };
     }
   };
 
