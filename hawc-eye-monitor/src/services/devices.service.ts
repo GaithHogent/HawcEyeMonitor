@@ -10,20 +10,21 @@ import {
   serverTimestamp,
   setDoc,
   deleteField,
+  getDoc,
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
 import type { DeviceDoc, DeviceItem } from "../types/device";
 
 const DEVICES_COL = "devices";
 
+const getCurrentUserName = () => {
+  return auth.currentUser?.displayName || auth.currentUser?.email || "system";
+};
+
 let devicesCache: DeviceItem[] | null = null;
 
 export const getCachedDevices = () => {
   return devicesCache;
-};
-
-const getCurrentUserName = () => {
-  return auth.currentUser?.displayName || auth.currentUser?.email || "system";
 };
 
 export const subscribeDevices = (onChange: (items: DeviceItem[]) => void) => {
@@ -80,10 +81,16 @@ export const subscribeDevice = (
 };
 
 export const resolveDeviceIssue = async (id: string) => {
+  const ref = doc(db, DEVICES_COL, id);
+  const snap = await getDoc(ref);
+  const data: any = snap.exists() ? snap.data() : null;
+
+  const hasRoomId = !!data?.roomId;
+
   await setDoc(
-    doc(db, DEVICES_COL, id),
+    ref,
     {
-      status: "active",
+      status: hasRoomId ? "active" : "inactive",
       issueType: deleteField(),
       issueDescription: deleteField(),
       issueStartAt: deleteField(),
