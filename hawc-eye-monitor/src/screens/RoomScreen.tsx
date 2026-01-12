@@ -1,6 +1,6 @@
 // src/screens/RoomScreen.tsx
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { View } from "react-native";
+import { View, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Animated, { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
@@ -45,6 +45,7 @@ import { DEVICE_TYPES } from "../types/deviceTypes";
 import RoomToolbar from "../components/room-screen/RoomToolbar";
 import RoomStage from "../components/room-screen/RoomStage";
 import DeviceDetailsModal from "../components/room-screen/DeviceDetailsModal";
+import { resolveDeviceIssue } from "../services/devices.service";
 
 type Params = { floorId: string; roomId: string };
 
@@ -179,6 +180,7 @@ const RoomScreen = () => {
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [resolving, setResolving] = useState(false);
 
   // سحب جارٍ (ghost)
   const [drag, setDrag] = useState<{ id: string; type: DeviceType; x: number; y: number } | null>(null);
@@ -301,6 +303,32 @@ const RoomScreen = () => {
         params: { deviceId: selected.id, returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } } },
       });
     }
+  };
+
+  const onResolveIssueSelected = () => {
+    if (!selected) return;
+    if (resolving) return;
+
+    Alert.alert(
+      "Resolve issue",
+      "Are you sure you want to mark this issue as resolved?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Resolve",
+          style: "default",
+          onPress: async () => {
+            try {
+              setResolving(true);
+              await resolveDeviceIssue(selected.id);
+              closeDetails();
+            } finally {
+              setResolving(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const onStageLayout = () => {
@@ -1088,10 +1116,12 @@ const RoomScreen = () => {
       <DeviceDetailsModal
         visible={detailsOpen}
         deleting={deleting}
+        resolving={resolving}
         selectedFs={selectedFs}
         onClose={closeDetails}
         onEdit={onEditSelected}
         onReportIssue={onReportIssueSelected}
+        onResolveIssue={onResolveIssueSelected}
         onRemove={onDeleteSelected}
       />
     </View>
