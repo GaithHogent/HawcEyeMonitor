@@ -1,10 +1,10 @@
 // src/screens/RoomScreen.tsx
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { View, StyleSheet, Pressable, Text, Modal, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Animated, { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Gesture } from "react-native-gesture-handler";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import Floor1Svg, {
   FLOOR1_BOUNDS,
@@ -41,6 +41,10 @@ import {
 import { db } from "../config/firebase";
 import Button from "../components/Button";
 import { DEVICE_TYPES } from "../types/deviceTypes";
+
+import RoomToolbar from "../components/room-screen/RoomToolbar";
+import RoomStage from "../components/room-screen/RoomStage";
+import DeviceDetailsModal from "../components/room-screen/DeviceDetailsModal";
 
 type Params = { floorId: string; roomId: string };
 
@@ -1012,166 +1016,64 @@ const RoomScreen = () => {
 
   return (
     <View style={styles.root}>
-      {toolSelected && (
-        <View style={styles.toolDetailsBar}>
-          <View style={styles.toolDetailsLeft}>
-            <View style={styles.toolDetailsIcon}>{renderToolIcon(toolSelected.id, toolSelected.type)}</View>
-            <View style={styles.toolDetailsText}>
-              <Text style={styles.toolDetailsTitle}>{devicesById[toolSelected.id]?.name ?? "-"}</Text>
-              <Text style={styles.toolDetailsDesc}>Type: {devicesById[toolSelected.id]?.typeRaw ?? "-"}</Text>
-            </View>
-          </View>
+      <RoomToolbar
+        styles={styles}
+        toolSelected={toolSelected}
+        toolSelectedId={toolSelectedId}
+        setToolSelectedId={setToolSelectedId}
+        devicesById={devicesById}
+        toolbarDevices={toolbarDevices}
+        pendingIds={pendingIds}
+        placed={placed}
+        makeToolGesture={makeToolGesture}
+        renderToolIcon={renderToolIcon}
+        canScrollToolbar={canScrollToolbar}
+        toolThumbW={toolThumbW}
+        toolThumbX={toolThumbX}
+        setToolScrollW={setToolScrollW}
+        setToolContentW={setToolContentW}
+        setToolScrollX={setToolScrollX}
+        setToolIndicatorW={setToolIndicatorW}
+        onAddPress={() => {
+          // ✅ NEW: فتح مودال = لا تمسح pending على blur
+          skipClearOnBlurRef.current = true;
 
-          <Pressable style={styles.toolDetailsClose} onPress={() => setToolSelectedId(null)}>
-            <Ionicons name="close" size={18} color="#111827" />
-          </Pressable>
-        </View>
-      )}
+          navigation.navigate("DeviceFormModal", {
+            floorId,
+            roomId,
+            returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } },
+          });
+        }}
+      />
 
-      <View style={styles.toolbar}>
-        <View style={styles.toolbarRow}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.toolbarScrollContent}
-            style={styles.toolbarScroll}
-            onLayout={(e) => setToolScrollW(e.nativeEvent.layout.width)}
-            onContentSizeChange={(w) => setToolContentW(w)}
-            onScroll={(e) => setToolScrollX(e.nativeEvent.contentOffset.x)}
-            scrollEventThrottle={16}
-          >
-            {toolbarDevices
-              .filter((dev) => !(pendingIds.has(dev.id) && placed.some((p) => p.id === dev.id)))
-              .map((dev) => (
-                <GestureDetector key={dev.id} gesture={makeToolGesture(dev.id, dev.type)}>
-                  <Pressable
-                    onPress={() => setToolSelectedId(dev.id)}
-                    style={[styles.toolBtn, toolSelectedId === dev.id && styles.toolBtnActive]}
-                  >
-                    {renderToolIcon(dev.id, dev.type)}
-                  </Pressable>
-                </GestureDetector>
-              ))}
-          </ScrollView>
-
-          {/* ✅ Custom horizontal scrollbar (same design) */}
-          <View
-            pointerEvents="none"
-            style={[styles.toolbarIndicatorWrap, !canScrollToolbar && styles.hidden]}
-            onLayout={(e) => setToolIndicatorW(e.nativeEvent.layout.width)}
-          >
-            <View style={styles.toolbarIndicatorTrack}>
-              <View
-                style={[
-                  styles.toolbarIndicatorThumb,
-                  {
-                    width: toolThumbW,
-                    transform: [{ translateX: toolThumbX }],
-                  },
-                ]}
-              />
-            </View>
-          </View>
-
-          <Pressable
-            style={styles.addBtn}
-            onPress={() => {
-              // ✅ NEW: فتح مودال = لا تمسح pending على blur
-              skipClearOnBlurRef.current = true;
-
-              navigation.navigate("DeviceFormModal", {
-                floorId,
-                roomId,
-                returnTo: { tab: "Map", screen: "Room", params: { floorId, roomId } },
-              });
-            }}
-          >
-            <Ionicons name="add" size={22} color="#111827" />
-          </Pressable>
-        </View>
-      </View>
-
-      <View ref={stageRef} style={styles.stageWrap} onLayout={onStageLayout}>
-        <Animated.View style={styles.stage}>
-          <View style={styles.canvas}>
-            {content}
-
-            {placed.map((d) => {
-              const isDraggingThis = draggingPlaced?.id === d.id;
-
-              return (
-                <GestureDetector key={d.id} gesture={makePlacedCombinedGesture(d.id, d.x, d.y, d.type)}>
-                  <View
-                    style={[
-                      styles.marker,
-                      {
-                        left: d.x - MARKER_SIZE / 2,
-                        top: d.y - MARKER_SIZE / 2,
-                        opacity: isDraggingThis ? 0 : 1,
-                      },
-                    ]}
-                  >
-                    {renderMarkerIcon(d.id, d.type, 18)}
-                  </View>
-                </GestureDetector>
-              );
-            })}
-
-            {draggingPlaced && (
-              <Animated.View pointerEvents="none" style={[styles.ghost, placedGhostStyle]}>
-                {renderMarkerIcon(draggingPlaced.id, draggingPlaced.type, 18)}
-              </Animated.View>
-            )}
-          </View>
-        </Animated.View>
-
-        {drag && (
-          <View
-            pointerEvents="none"
-            style={[
-              styles.ghost,
-              {
-                left: drag.x - MARKER_SIZE / 2,
-                top: drag.y - MARKER_SIZE / 2,
-              },
-            ]}
-          >
-            {renderMarkerIcon(drag.id, drag.type, 18)}
-          </View>
-        )}
-      </View>
+      <RoomStage
+        styles={styles}
+        stageRef={stageRef}
+        onStageLayout={onStageLayout}
+        content={content}
+        placed={placed}
+        draggingPlaced={draggingPlaced}
+        drag={drag}
+        MARKER_SIZE={MARKER_SIZE}
+        makePlacedCombinedGesture={makePlacedCombinedGesture}
+        renderMarkerIcon={renderMarkerIcon}
+        placedGhostStyle={placedGhostStyle}
+      />
 
       {/* ✅ Save button */}
       <View style={styles.saveBar}>
         <Button label={saving ? "Saving..." : "Save"} onPress={onSaveAll} disabled={saving || pendingIds.size === 0} />
       </View>
 
-      <Modal visible={detailsOpen} transparent animationType="fade" onRequestClose={closeDetails}>
-        <Pressable style={styles.modalBackdrop} onPress={closeDetails}>
-          <Pressable style={styles.modalCard} onPress={() => {}}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Device details</Text>
-
-              <Pressable style={styles.modalCloseBtn} onPress={closeDetails} hitSlop={10}>
-                <Ionicons name="close" size={18} color="#111827" />
-              </Pressable>
-            </View>
-
-            <Text style={styles.modalRow}>Name: {selectedFs?.name ?? "-"}</Text>
-            <Text style={styles.modalRow}>Type: {selectedFs?.typeRaw ?? "-"}</Text>
-            <Text style={styles.modalRow}>Status: {selectedFs?.status ?? "-"}</Text>
-
-            <View style={styles.modalActions}>
-              <Button label="Edit" onPress={onEditSelected} variant="outline" disabled={deleting} />
-              <Button
-                label={deleting ? "Removing..." : "Remove form this room"}
-                onPress={onDeleteSelected}
-                disabled={deleting}
-              />
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <DeviceDetailsModal
+        styles={styles}
+        visible={detailsOpen}
+        deleting={deleting}
+        selectedFs={selectedFs}
+        onClose={closeDetails}
+        onEdit={onEditSelected}
+        onRemove={onDeleteSelected}
+      />
     </View>
   );
 };
