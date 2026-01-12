@@ -16,6 +16,12 @@ import type { DeviceDoc, DeviceItem } from "../types/device";
 
 const DEVICES_COL = "devices";
 
+let devicesCache: DeviceItem[] | null = null;
+
+export const getCachedDevices = () => {
+  return devicesCache;
+};
+
 const getCurrentUserName = () => {
   return auth.currentUser?.displayName || auth.currentUser?.email || "system";
 };
@@ -27,6 +33,7 @@ export const subscribeDevices = (onChange: (items: DeviceItem[]) => void) => {
       id: d.id,
       ...(d.data() as DeviceDoc),
     }));
+    devicesCache = items;
     onChange(items);
   });
 };
@@ -107,4 +114,3 @@ export const reportDeviceIssue = async (
     { merge: true }
   );
 };
-

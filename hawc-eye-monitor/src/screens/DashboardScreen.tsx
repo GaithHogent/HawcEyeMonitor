@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import ImageCarousel from "../components/dashboard-screen/ImageCarousel";
 import StatsGrid from "../components/dashboard-screen/StatsGrid";
 import Header from "../components/Header";
-import { subscribeDevices } from "../services/devices.service";
+import { getCachedDevices, subscribeDevices } from "../services/devices.service";
 import type { DeviceItem } from "../types/device";
 import { useNavigation } from "@react-navigation/native";
 import type { AppStackNavProps } from "../navigators/types";
@@ -19,7 +19,7 @@ const DashboardScreen = () => {
     require("../../assets/company-images/hawc4.png"),
   ];
 
-  const [devices, setDevices] = useState<DeviceItem[]>([]);
+  const [devices, setDevices] = useState<DeviceItem[]>(() => getCachedDevices() ?? []);
 
   useEffect(() => {
     const unsub = subscribeDevices((items) => {
