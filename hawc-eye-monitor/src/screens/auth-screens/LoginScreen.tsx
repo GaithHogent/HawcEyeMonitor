@@ -1,4 +1,4 @@
-// src/screens/LoginScreen.tsx 
+// src/screens/auth-screens/LoginScreen.tsx 
 import { useRef } from 'react';
 import { View, TextInput, Pressable, Image, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import MyText from '../../components/MyText';

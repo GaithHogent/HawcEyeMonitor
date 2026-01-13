@@ -19,6 +19,7 @@ export type TabParamsList = {
   Map: undefined;
   Devices: undefined;
   Alerts: undefined;
+  Admin: undefined;
   Profile: undefined;
 };
 export type TabsNavProps<T extends keyof TabParamsList> =

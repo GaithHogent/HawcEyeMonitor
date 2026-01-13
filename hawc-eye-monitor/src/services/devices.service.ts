@@ -11,11 +11,14 @@ import {
   setDoc,
   deleteField,
   getDoc,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
 import type { DeviceDoc, DeviceItem } from "../types/device";
 
 const DEVICES_COL = "devices";
+const USERS_COL = "users";
 
 const getCurrentUserName = () => {
   return auth.currentUser?.displayName || auth.currentUser?.email || "system";
@@ -120,4 +123,97 @@ export const reportDeviceIssue = async (
     },
     { merge: true }
   );
+};
+
+export const ensureUserProfile = async (uid: string, email: string) => {
+  const ref = doc(db, USERS_COL, uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(
+      ref,
+      {
+        email,
+        role: "staff",
+        accessStatus: "pending",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+};
+
+export const createUserProfile = async (uid: string, email: string) => {
+  await setDoc(
+    doc(db, USERS_COL, uid),
+    {
+      email,
+      role: "staff",
+      accessStatus: "pending",
+      createdAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+};
+
+export const subscribeUserProfile = (
+  uid: string,
+  onChange: (profile: { role?: string; accessStatus?: string } | null) => void
+) => {
+  const ref = doc(db, USERS_COL, uid);
+  return onSnapshot(ref, (s) => {
+    if (!s.exists()) {
+      onChange(null);
+      return;
+    }
+    const d: any = s.data() ?? {};
+    onChange({
+      role: d?.role ? String(d.role) : undefined,
+      accessStatus: d?.accessStatus ? String(d.accessStatus) : undefined,
+    });
+  });
+};
+
+type UserRow = {
+  id: string;
+  email?: string;
+  role?: string;
+  accessStatus?: "pending" | "approved" | "rejected" | string;
+};
+
+export const subscribeUsersByAccessStatus = (
+  status: "pending" | "approved" | "rejected",
+  onChange: (rows: UserRow[]) => void
+) => {
+  const col = collection(db, USERS_COL);
+  const q = query(col, where("accessStatus", "==", status));
+
+  return onSnapshot(q, (snap) => {
+    const rows: UserRow[] = [];
+    snap.forEach((d) => {
+      const data: any = d.data();
+      rows.push({
+        id: d.id,
+        email: data?.email ? String(data.email) : undefined,
+        role: data?.role ? String(data.role) : undefined,
+        accessStatus: data?.accessStatus ? String(data.accessStatus) : status,
+      });
+    });
+    onChange(rows);
+  });
+};
+
+export const subscribePendingUsersCount = (onChange: (count: number) => void) => {
+  const qPending = query(collection(db, USERS_COL), where("accessStatus", "==", "pending"));
+  return onSnapshot(qPending, (snap) => {
+    onChange(snap.size);
+  });
+};
+
+export const setUserAccessStatus = async (uid: string, nextStatus: "approved" | "rejected" | "pending") => {
+  await updateDoc(doc(db, USERS_COL, uid), {
+    accessStatus: nextStatus,
+    updatedAt: serverTimestamp(),
+  });
 };

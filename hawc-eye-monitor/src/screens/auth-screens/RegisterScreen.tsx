@@ -1,4 +1,4 @@
-// src/screens/RegisterScreen.tsx
+// src/screens/auth-screens/RegisterScreen.tsx
 import { useRef } from 'react';
 import { View, TextInput, Pressable, Image, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import MyText from '../../components/MyText';
@@ -11,6 +11,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { FirebaseError } from 'firebase/app';
 import Button from '../../components/Button';
+import { createUserProfile } from '../../services/devices.service';
 
 const schema = Yup.object({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -29,7 +30,9 @@ const RegisterScreen = () => {
 
   const handleRegister = async (email: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+      await createUserProfile(cred.user.uid, email);
     } catch (error) {
       if (error instanceof FirebaseError) {
         Alert.alert('Register Error', error.message);

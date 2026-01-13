@@ -7,9 +7,11 @@ import DashboardStackNavigator from "./AppStackNavigator";
 import MapStackNavigator from "./MapStackNavigator";
 import DevicesStackNavigator from "./DevicesStackNavigator";
 import ProfileScreen from "../screens/ProfileScreen";
+import AdminScreen from "../screens/AdminScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
-import { subscribeDevices } from "../services/devices.service";
+import { auth } from "../config/firebase";
+import { subscribeDevices, subscribePendingUsersCount, subscribeUserProfile } from "../services/devices.service";
 
 const Tab = createBottomTabNavigator<TabParamsList>();
 const PRIMARY = "#0d7ff2";
@@ -20,6 +22,8 @@ const AlertsTab = () => <DevicesStackNavigator initialRouteName="Alerts" />;
 
 export default function TabNavigator() {
   const [alertsCount, setAlertsCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     const unsub = subscribeDevices((items) => {
@@ -27,6 +31,31 @@ export default function TabNavigator() {
     });
     return unsub;
   }, []);
+
+  useEffect(() => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) {
+      setIsAdmin(false);
+      return;
+    }
+
+    const unsub = subscribeUserProfile(uid, (p) => {
+      const role = String(p?.role ?? "").toLowerCase().trim();
+      setIsAdmin(role === "admin");
+    });
+
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setPendingCount(0);
+      return;
+    }
+
+    const unsub = subscribePendingUsersCount((n) => setPendingCount(n));
+    return () => unsub();
+  }, [isAdmin]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
@@ -78,6 +107,19 @@ export default function TabNavigator() {
           ),
         }}
       />
+      {isAdmin && (
+        <Tab.Screen
+          name="Admin"
+          component={AdminScreen}
+          options={{
+            tabBarLabel: "Admin",
+            tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="shield-account" color={color} size={size} />
+            ),
+          }}
+        />
+      )}
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
