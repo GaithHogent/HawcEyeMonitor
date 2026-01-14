@@ -83,6 +83,10 @@ devices: device data (name, status, location, issue details, etc.)
 
 users: user information and role (Admin/Staff)
 
+## 📚 Repository
+
+GitHub: https://github.com/GaithHogent/HawcEyeMonitor
+
 ## 📸 Screenshots
 
 <img src="Readme-images/splash-screen.png" width="200">
@@ -92,6 +96,3 @@ users: user information and role (Admin/Staff)
 <img src="Readme-images/devices-inside-the-room.png" width="200">
 
 
-## 📚 Repository
-
-GitHub: https://github.com/GaithHogent/HawcEyeMonitor
