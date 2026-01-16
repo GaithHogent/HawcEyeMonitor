@@ -154,16 +154,18 @@ export default function Floor1Svg({ onRoomPress, onlyRoomId }: Props) {
       rx={rx ?? 0}
     />
 
-    <Text
-      fontFamily="Arial, Helvetica, sans-serif"
-      fontSize={20}
-      fill="#1a1f36"
-      x={r.labelPos?.x ?? x + w / 2}
-      y={r.labelPos?.y ?? y + h / 2}
-      textAnchor={r.labelPos?.anchor ?? "middle"}
-    >
-      {r.label}
-    </Text>
+    {showAll && (
+      <Text
+        fontFamily="Arial, Helvetica, sans-serif"
+        fontSize={20}
+        fill="#1a1f36"
+        x={r.labelPos?.x ?? x + w / 2}
+        y={r.labelPos?.y ?? y + h / 2}
+        textAnchor={r.labelPos?.anchor ?? "middle"}
+      >
+        {r.label}
+      </Text>
+    )}
 
     {r.door && <Rect fill="#1a1f36" x={r.door.x} y={r.door.y} width={r.door.w} height={r.door.h} />}
   </G>
