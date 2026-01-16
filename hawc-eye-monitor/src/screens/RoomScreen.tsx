@@ -1033,6 +1033,7 @@ const RoomScreen = () => {
       });
 
   const openDetailsById = (id: string) => {
+    if (pendingIdsRef.current.size > 0) return;
     const item = placedRef.current.find((p) => p.id === id);
     if (!item) return;
     openDetails(item);
