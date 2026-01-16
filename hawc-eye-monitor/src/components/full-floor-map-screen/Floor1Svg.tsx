@@ -90,6 +90,14 @@ const ROOMS: RoomDef[] = [
   },
 ];
 
+export const FLOOR1_ROOM_LABELS: Record<string, string> = ROOMS.reduce(
+  (acc, r) => {
+    acc[r.id] = r.label;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
 // ===== Export bounds for clamping devices inside rooms =====
 export const FLOOR1_BOUNDS: Record<string, { x: number; y: number; w: number; h: number }> = ROOMS.reduce(
   (acc, r) => {
