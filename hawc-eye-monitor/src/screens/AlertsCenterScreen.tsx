@@ -35,25 +35,6 @@ const navigation = useNavigation<DevicesStackNavProps<"DeviceDetail">["navigatio
     <View className="flex-1 bg-gray-50">
       <View className="px-4 pt-4">
         <Header title="Alerts" />
-
-        <View className="mt-3 mb-2 rounded-2xl bg-white p-4 shadow-sm">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <MaterialCommunityIcons name="alert-circle-outline" size={20} color="#ef4444" />
-              <Text className="ml-2 text-base font-semibold text-gray-900">
-                Active Issues
-              </Text>
-            </View>
-            <View className="rounded-full bg-red-100 px-2.5 py-1">
-              <Text className="text-xs font-semibold text-red-700">
-                {devices.length}
-              </Text>
-            </View>
-          </View>
-          <Text className="mt-1 text-sm text-gray-500">
-            Devices currently reporting problems
-          </Text>
-        </View>
       </View>
 
       <FlatList
