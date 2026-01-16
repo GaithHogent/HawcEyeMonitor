@@ -16,7 +16,25 @@ const navigation = useNavigation<DevicesStackNavProps<"DeviceDetail">["navigatio
 
   useEffect(() => {
     const unsub = subscribeDevices((items) => {
-      setDevices(items.filter((d) => d.status === "issue"));
+      setDevices(
+        items
+          .filter((d) => d.status === "issue")
+          .slice()
+          .sort((a, b) => {
+            const toMs = (v: any) => {
+              if (!v) return 0;
+              if (typeof v.toDate === "function") return v.toDate().getTime();
+              if (v instanceof Date) return v.getTime();
+              if (typeof v === "number") return v;
+              const n = new Date(v).getTime();
+              return Number.isFinite(n) ? n : 0;
+            };
+
+            const at = toMs((a as any).issueStartAt ?? (a as any).updatedAt);
+            const bt = toMs((b as any).issueStartAt ?? (b as any).updatedAt);
+            return bt - at;
+          })
+      );
       setLoading(false);
     });
     return unsub;

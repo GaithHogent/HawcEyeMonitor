@@ -37,9 +37,26 @@ const DevicesListScreen = () => {
       <Header title="Devices" />
       <FlatList
         data={DEVICE_STATUSES.map((s) => ({
+
           key: s.key,
           title: s.label,
-          data: devices.filter((d) => d.status === s.key),
+          data: devices
+            .filter((d) => d.status === s.key)
+            .slice()
+            .sort((a, b) => {
+              const toMs = (v: any) => {
+                if (!v) return 0;
+                if (typeof v.toDate === "function") return v.toDate().getTime();
+                if (v instanceof Date) return v.getTime();
+                if (typeof v === "number") return v;
+                const n = new Date(v).getTime();
+                return Number.isFinite(n) ? n : 0;
+              };
+
+              const at = toMs((a as any).createdAt ?? (a as any).updatedAt);
+              const bt = toMs((b as any).createdAt ?? (b as any).updatedAt);
+              return bt - at;
+            }),
         }))}
         keyExtractor={(item) => item.key}
         contentContainerStyle={{ paddingBottom: 96 }}
