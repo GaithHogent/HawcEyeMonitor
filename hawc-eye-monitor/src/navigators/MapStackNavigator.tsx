@@ -7,11 +7,22 @@ import FloorsOverviewScreen from "../screens/FloorsOverviewScreen";
 import FullFloorMapScreen from "../screens/FullFloorMapScreen";
 import RoomScreen from "../screens/RoomScreen";
 
-import { FLOOR1_ROOM_LABELS } from "../components/full-floor-map-screen/Floor1Svg";
-import { FLOOR2_ROOM_LABELS } from "../components/full-floor-map-screen/Floor2Svg";
-import { FLOOR3_ROOM_LABELS } from "../components/full-floor-map-screen/Floor3Svg";
+import { ROOMS as FLOOR1_ROOMS } from "../components/full-floor-map-screen/Floor1Svg";
+import { ROOMS as FLOOR2_ROOMS } from "../components/full-floor-map-screen/Floor2Svg";
+import { ROOMS as FLOOR3_ROOMS } from "../components/full-floor-map-screen/Floor3Svg";
 
 const Stack = createStackNavigator<MapStackParamsList>();
+
+const getRoomLabel = (floorId: string, roomId: string) => {
+  const rooms =
+    floorId === "1"
+      ? FLOOR1_ROOMS
+      : floorId === "2"
+      ? FLOOR2_ROOMS
+      : FLOOR3_ROOMS;
+
+  return rooms.find((r) => r.id === roomId)?.label ?? roomId;
+};
 
 const MapStackNavigator = () => {
   return (
@@ -32,21 +43,9 @@ const MapStackNavigator = () => {
       <Stack.Screen
         name="Room"
         component={RoomScreen}
-        options={({ route }) => {
-          const floorId = String((route.params as any)?.floorId ?? "");
-          const roomId = String((route.params as any)?.roomId ?? "");
-
-          const label =
-            floorId === "1"
-              ? FLOOR1_ROOM_LABELS[roomId]
-              : floorId === "2"
-                ? FLOOR2_ROOM_LABELS[roomId]
-                : FLOOR3_ROOM_LABELS[roomId];
-
-          return {
-            title: label ? String(label) : `${roomId}`,
-          };
-        }}
+        options={({ route }) => ({
+          title: getRoomLabel(route.params.floorId, route.params.roomId),
+        })}
       />
     </Stack.Navigator>
   );

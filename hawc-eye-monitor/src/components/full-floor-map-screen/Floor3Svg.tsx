@@ -23,7 +23,8 @@ export const FLOOR3_VB_MIN_H = 300;
 const FLOOR_W = 760;
 const FLOOR_H = 1160;
 
-const ROOMS: RoomDef[] = [
+export const ROOMS: RoomDef[] = [
+
   {
     id: "corridor",
     label: "Corridor",
@@ -87,14 +88,6 @@ const ROOMS: RoomDef[] = [
     labelPos: { x: 405, y: 120, anchor: "middle" },
   },
 ];
-
-export const FLOOR3_ROOM_LABELS: Record<string, string> = ROOMS.reduce(
-  (acc, r) => {
-    acc[r.id] = r.label;
-    return acc;
-  },
-  {} as Record<string, string>
-);
 
 export const FLOOR3_BOUNDS: Record<string, { x: number; y: number; w: number; h: number }> = ROOMS.reduce(
   (acc, r) => {

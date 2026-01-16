@@ -25,7 +25,7 @@ const FLOOR_W = 760;
 const FLOOR_H = 1160;
 
 // ===== Rooms definition (نفس إحداثياتك) =====
-const ROOMS: RoomDef[] = [
+export const ROOMS: RoomDef[] = [
   {
     id: "corridor",
     label: "Corridor",
@@ -89,14 +89,6 @@ const ROOMS: RoomDef[] = [
     labelPos: { x: 405, y: 120, anchor: "middle" },
   },
 ];
-
-export const FLOOR1_ROOM_LABELS: Record<string, string> = ROOMS.reduce(
-  (acc, r) => {
-    acc[r.id] = r.label;
-    return acc;
-  },
-  {} as Record<string, string>
-);
 
 // ===== Export bounds for clamping devices inside rooms =====
 export const FLOOR1_BOUNDS: Record<string, { x: number; y: number; w: number; h: number }> = ROOMS.reduce(
