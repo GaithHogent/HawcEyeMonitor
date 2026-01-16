@@ -26,6 +26,10 @@ const DeviceDetailScreen = () => {
     return unsub;
   }, [initialDevice.id]);
 
+  useEffect(() => {
+    navigation.setOptions({ title: device.name ? String(device.name) : "Device" });
+  }, [navigation, device.name]);
+
   const location = useMemo(() => {
     const parts: string[] = [];
     if (device.floor !== undefined) parts.push(`Floor: ${device.floor}`);
