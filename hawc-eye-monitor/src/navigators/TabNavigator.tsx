@@ -59,78 +59,94 @@ export default function TabNavigator() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: PRIMARY,
-        tabBarHideOnKeyboard: true,
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={DashboardStackNavigator}
-        options={{
-          tabBarLabel: "Dashboard",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />
-          ),
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: PRIMARY,
+          tabBarHideOnKeyboard: true,
         }}
-      />
-      <Tab.Screen
-        name="Map"
-        component={MapStackNavigator}
-        options={{
-          tabBarLabel: "Map",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="map" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Devices"
-        component={DevicesTab}
-        options={{
-          tabBarLabel: "Devices",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="access-point" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Alerts"
-        component={AlertsTab}
-        options={{
-          tabBarLabel: "Alerts",
-          tabBarBadge: alertsCount > 0 ? alertsCount : undefined,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="alert-decagram" color={color} size={size} />
-          ),
-        }}
-      />
-      {isAdmin && (
+      >
         <Tab.Screen
-          name="Admin"
-          component={AdminScreen}
+          name="Home"
+          component={DashboardStackNavigator}
           options={{
-            tabBarLabel: "Admin",
-            tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
+            tabBarLabel: "Dashboard",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="shield-account" color={color} size={size} />
+              <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />
             ),
           }}
         />
-      )}
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        <Tab.Screen
+          name="Map"
+          component={MapStackNavigator}
+          options={{
+            tabBarLabel: "Map",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="map" color={color} size={size} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Devices"
+          component={DevicesTab}
+          options={{
+            tabBarLabel: "Devices",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="access-point" color={color} size={size} />
+            ),
+          }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate("Devices", {
+                screen: "DevicesList",
+              });
+            },
+          })}
+        />
+        <Tab.Screen
+          name="Alerts"
+          component={AlertsTab}
+          options={{
+            tabBarLabel: "Alerts",
+            tabBarBadge: alertsCount > 0 ? alertsCount : undefined,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="alert-decagram" color={color} size={size} />
+            ),
+          }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate("Alerts", {
+                screen: "Alerts",
+              });
+            },
+          })}
+        />
+        {isAdmin && (
+          <Tab.Screen
+            name="Admin"
+            component={AdminScreen}
+            options={{
+              tabBarLabel: "Admin",
+              tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="shield-account" color={color} size={size} />
+              ),
+            }}
+          />
+        )}
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            tabBarLabel: "Profile",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="account" color={color} size={size} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
     </SafeAreaView>
   );
 }

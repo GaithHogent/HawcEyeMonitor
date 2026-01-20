@@ -17,11 +17,18 @@ export type AuthStackNavProps<T extends keyof AuthStackParamList> =
 export type TabParamsList = {
   Home: undefined;
   Map: undefined;
-  Devices: undefined;
-  Alerts: undefined;
+  Devices: {
+    screen?: keyof DevicesStackParamsList;
+    params?: any;
+  } | undefined;
+  Alerts: {
+    screen?: keyof DevicesStackParamsList;
+    params?: any;
+  } | undefined;
   Admin: undefined;
   Profile: undefined;
 };
+
 export type TabsNavProps<T extends keyof TabParamsList> =
   BottomTabScreenProps<TabParamsList, T>;
 // =============================================================================
