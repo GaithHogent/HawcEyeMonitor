@@ -58,7 +58,6 @@ type ToolbarDevice = { id: string; type: DeviceType; name?: string; status: stri
 // ✅ تفاصيل الجهاز من Firestore (للـ popup داخل الغرفة)
 type FsDeviceInfo = { name?: string; typeRaw?: string; status?: string };
 
-const TOOLBAR_H = 52;
 const MARKER_SIZE = 28;
 
 // default margins (لغرف عادية)
@@ -86,7 +85,6 @@ const RoomScreen = () => {
   const { floorId, roomId } = params as Params;
   const navigation = useNavigation<any>();
   const stageRef = useRef<View>(null);
-  const placedDragTs = useSharedValue(0);
   const [draggingPlaced, setDraggingPlaced] = useState<{ id: string; type: DeviceType } | null>(null);
   const placedDragX = useSharedValue(0);
   const placedDragY = useSharedValue(0);
@@ -805,21 +803,6 @@ const RoomScreen = () => {
       const t = placedRef.current.find((p) => p.id === id)?.type ?? "camera";
       pendingPlacedRef.current[id] = { id, type: t, x, y, nx, ny };
     }
-  };
-
-  const placedMoveRafRef = useRef<number | null>(null);
-  const placedMoveQueueRef = useRef<{ id: string; x: number; y: number } | null>(null);
-
-  const schedulePlacedLocal = (id: string, x: number, y: number) => {
-    placedMoveQueueRef.current = { id, x, y };
-    if (placedMoveRafRef.current != null) return;
-
-    placedMoveRafRef.current = requestAnimationFrame(() => {
-      placedMoveRafRef.current = null;
-      const q = placedMoveQueueRef.current;
-      if (!q) return;
-      applyPlacedLocal(q.id, q.x, q.y);
-    });
   };
 
   const dragRafRef = useRef<number | null>(null);
