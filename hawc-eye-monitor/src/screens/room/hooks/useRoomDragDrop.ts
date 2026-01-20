@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { Gesture } from "react-native-gesture-handler";
 import { runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { updateDoc, doc, serverTimestamp, writeBatch } from "firebase/firestore";
-import { db } from "../../../config/firebase";
+import { db, auth } from "../../../config/firebase";
 
 import type { DeviceType, PlacedDevice } from "../useRoomTypes";
 import { clamp01 } from "../room.utils";
@@ -48,6 +48,10 @@ const RESTROOM_PAD_LEFT = 12;
 const RESTROOM_PAD_RIGHT = 16;
 const RESTROOM_PAD_TOP = 60;
 const RESTROOM_PAD_BOTTOM = 165;
+
+const getCurrentUserName = () => {
+  return auth.currentUser?.displayName || auth.currentUser?.email || "system";
+};
 
 export const useRoomDragDrop = ({
   roomId,
@@ -208,6 +212,7 @@ export const useRoomDragDrop = ({
           x: p.nx,
           y: p.ny,
           updatedAt: serverTimestamp(),
+          updatedBy: getCurrentUserName(),
         });
       });
 
@@ -238,6 +243,7 @@ export const useRoomDragDrop = ({
             x: nx,
             y: ny,
             updatedAt: serverTimestamp(),
+            updatedBy: getCurrentUserName(),
           });
         } catch {}
 
@@ -261,6 +267,7 @@ export const useRoomDragDrop = ({
           x: nx,
           y: ny,
           updatedAt: serverTimestamp(),
+          updatedBy: getCurrentUserName(),
         });
       } catch {}
     },
