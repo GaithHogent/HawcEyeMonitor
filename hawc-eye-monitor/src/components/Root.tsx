@@ -146,7 +146,6 @@ const Root = () => {
           ) : (
             <AuthStack />
           )}
-         {/*<RootNavigator />*/}
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>

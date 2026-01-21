@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { View, Text, FlatList, Pressable, Alert } from "react-native";
 import { setUserAccessStatus, subscribeUsersByAccessStatus } from "../services/devices.service";
 import { auth } from "../config/firebase";
+import Header from "../components/Header";
 
 type UserRow = {
   id: string;
@@ -121,15 +122,16 @@ const AdminScreen = () => {
   const selfUid = auth.currentUser?.uid ?? "";
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
-      <View className="mb-4">
-        <Text className="text-[18px] font-extrabold text-gray-900">Admin</Text>
-        <Text className="text-[12px] text-gray-600 mt-0.5">Manage access requests</Text>
+    <View className="flex-1 bg-gray-100">
+      <View className="px-4 pt-4">
+        <Header title="Admin" />
       </View>
 
-      <Section title="New requests" data={pending.filter((u) => u.id !== selfUid)} mode="pending" />
-      <Section title="Approved users" data={approved.filter((u) => u.id !== selfUid)} mode="approved" />
-      <Section title="Rejected users" data={rejected.filter((u) => u.id !== selfUid)} mode="rejected" />
+      <View className="p-4">
+        <Section title="New requests" data={pending.filter((u) => u.id !== selfUid)} mode="pending" />
+        <Section title="Approved users" data={approved.filter((u) => u.id !== selfUid)} mode="approved" />
+        <Section title="Rejected users" data={rejected.filter((u) => u.id !== selfUid)} mode="rejected" />
+      </View>
     </View>
   );
 };
