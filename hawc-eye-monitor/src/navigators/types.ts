@@ -83,7 +83,6 @@ export type RootStackParamList = {
       }
     | undefined;
 };
-//TODO: لازم اشيل التعليق منا و اشوف وين لازم استعملها 
 
 /*export type RootStackNavProps<T extends keyof RootStackParamList> =
   StackScreenProps<RootStackParamList, T>;*/

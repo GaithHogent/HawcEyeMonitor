@@ -96,7 +96,6 @@ const DeviceDetailScreen = () => {
   return (
     <View className="flex-1 bg-white p-4">
       <View className="rounded-2xl border border-gray-200 p-4">
-        {/* name هو الوصف الآن */}
         <Text className="text-xl font-bold text-gray-900">{device.name}</Text>
         <Text className="mt-1 text-sm text-gray-700">{device.type}</Text>
 

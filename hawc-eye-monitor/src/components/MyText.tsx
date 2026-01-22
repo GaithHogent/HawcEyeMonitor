@@ -4,7 +4,7 @@ interface MyTextProps extends TextProps {
   className?: string;
 }
 
-export default function MyText({ className, children, ...rest }: MyTextProps) {
+const MyText = ({ className, children, ...rest }: MyTextProps) => {
   return (
     <Text
       {...rest}
@@ -14,3 +14,4 @@ export default function MyText({ className, children, ...rest }: MyTextProps) {
     </Text>
   );
 }
+export default MyText;

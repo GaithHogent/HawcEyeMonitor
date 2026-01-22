@@ -33,7 +33,7 @@ const DevicesListScreen = () => {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 p-4">
+    <View className="flex-1 p-4">
       <Header title="Devices" />
       <FlatList
         data={DEVICE_STATUSES.map((s) => ({
@@ -68,10 +68,10 @@ const DevicesListScreen = () => {
         renderItem={({ item }) => (
           <View className="mb-8">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-sm font-semibold text-gray-700">
+              <Text className="text-sm font-semibold">
                 {item.title}
               </Text>
-              <Text className="text-xs text-gray-400">
+              <Text className="text-sm font-semibold">
                 {item.data.length}
               </Text>
             </View>

@@ -20,7 +20,7 @@ const DevicesTab = () => <DevicesStackNavigator initialRouteName="DevicesList" /
 
 const AlertsTab = () => <DevicesStackNavigator initialRouteName="Alerts" />;
 
-export default function TabNavigator() {
+const TabNavigator = () => {
   const [alertsCount, setAlertsCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
@@ -150,3 +150,4 @@ export default function TabNavigator() {
     </SafeAreaView>
   );
 }
+export default TabNavigator;

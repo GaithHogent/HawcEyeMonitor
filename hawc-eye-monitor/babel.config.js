@@ -6,7 +6,6 @@ module.exports = function (api) {
       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
       "nativewind/babel",
     ],
-    // مع Expo SDK 54 غالباً ما تحتاج تضيف أي plugin لـ Reanimated لأن babel-preset-expo يسويه تلقائياً
     plugins: [],
   };
 };

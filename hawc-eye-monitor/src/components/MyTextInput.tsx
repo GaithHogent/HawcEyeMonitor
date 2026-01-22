@@ -1,6 +1,6 @@
 // src/components/MyTextInput.tsx
 import { forwardRef } from 'react';
-import { TextInput, TextInputProps, StyleSheet } from 'react-native';
+import { TextInput, TextInputProps } from 'react-native';
 
 const MyTextInput = forwardRef<TextInput, TextInputProps>((props, ref) => {
   return (
@@ -13,5 +13,3 @@ const MyTextInput = forwardRef<TextInput, TextInputProps>((props, ref) => {
 });
 
 export default MyTextInput;
-
-const styles = StyleSheet.create({});

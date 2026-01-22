@@ -55,13 +55,13 @@ const DashboardScreen = () => {
     <ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 16 }}>
       <Header title="Dashboard" />
 
-      {/* معرض الصور */}
+      {/* Photo Gallery */}
       <ImageCarousel images={images} />
 
-      {/* بطاقات المعلومات */}
+      {/* Information Cards */}
       <StatsGrid stats={stats} />
 
-      {/* التنبيهات الأخيرة */}
+      {/* Last Alerts*/}
       <Text className="mt-5 mb-2 text-base font-bold text-gray-900">Latest Alerts</Text>
 
       {latestAlerts.length === 0 ? (

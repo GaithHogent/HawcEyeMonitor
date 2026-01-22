@@ -50,7 +50,7 @@ const navigation = useNavigation<DevicesStackNavProps<"DeviceDetail">["navigatio
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1">
       <View className="px-4 pt-4">
         <Header title="Alerts" />
       </View>

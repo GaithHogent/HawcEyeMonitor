@@ -7,7 +7,6 @@ import {
   ScrollView,
   Modal,
   Dimensions,
-  StyleSheet,
   ImageSourcePropType,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -16,7 +15,7 @@ const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
 
 type Props = { images: ImageSourcePropType[] };
 
-export default function ImageCarousel({ images }: Props) {
+const ImageCarousel = ({ images }: Props) => {
   const [index, setIndex] = useState(0);
   const [viewer, setViewer] = useState(false);
   const scroller = useRef<ScrollView>(null);
@@ -39,7 +38,10 @@ export default function ImageCarousel({ images }: Props) {
 
   return (
     <>
-      <View style={[styles.bannerWrap, { width: BANNER_W, height: BANNER_H }]}>
+      <View
+        className="self-center rounded-xl overflow-hidden mb-5"
+        style={{ width: BANNER_W, height: BANNER_H }}
+      >
         <ScrollView
           ref={scroller}
           horizontal
@@ -52,22 +54,36 @@ export default function ImageCarousel({ images }: Props) {
         >
           {images.map((src, i) => (
             <TouchableOpacity key={i} activeOpacity={0.9} onPress={() => setViewer(true)}>
-              <Image source={src} style={[styles.banner, { width: BANNER_W, height: BANNER_H }]} />
+              <Image
+                source={src}
+                className="object-cover"
+                style={{ width: BANNER_W, height: BANNER_H }}
+              />
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        <TouchableOpacity style={[styles.arrow, { left: 8 }]} onPress={() => goTo(index - 1)}>
+        <TouchableOpacity
+          className="absolute top-[45%] left-2 bg-white/85 w-9 h-9 rounded-full items-center justify-center"
+          onPress={() => goTo(index - 1)}
+        >
           <MaterialCommunityIcons name="chevron-left" size={28} color="#111" />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.arrow, { right: 8 }]} onPress={() => goTo(index + 1)}>
+
+        <TouchableOpacity
+          className="absolute top-[45%] right-2 bg-white/85 w-9 h-9 rounded-full items-center justify-center"
+          onPress={() => goTo(index + 1)}
+        >
           <MaterialCommunityIcons name="chevron-right" size={28} color="#111" />
         </TouchableOpacity>
       </View>
 
       <Modal visible={viewer} animationType="fade" transparent onRequestClose={() => setViewer(false)}>
-        <View style={styles.modalRoot}>
-          <TouchableOpacity style={styles.closeBtn} onPress={() => setViewer(false)}>
+        <View className="flex-1 bg-black/95">
+          <TouchableOpacity
+            className="absolute top-10 right-4 z-10 p-1.5"
+            onPress={() => setViewer(false)}
+          >
             <MaterialCommunityIcons name="close" size={26} color="#fff" />
           </TouchableOpacity>
 
@@ -87,69 +103,36 @@ export default function ImageCarousel({ images }: Props) {
             }}
           >
             {images.map((src, i) => (
-              <View key={i} style={{ width: SCREEN_W, height: SCREEN_H, alignItems: "center", justifyContent: "center" }}>
-                <Image source={src} style={styles.fullImage} />
+              <View
+                key={i}
+                className="items-center justify-center"
+                style={{ width: SCREEN_W, height: SCREEN_H }}
+              >
+                <Image
+                  source={src}
+                  resizeMode="contain"
+                  style={{ width: SCREEN_W, height: SCREEN_H }}
+                />
               </View>
             ))}
           </ScrollView>
 
-          <TouchableOpacity style={[styles.modalArrow, { left: 12 }]} onPress={() => goTo(index - 1, true)}>
+          <TouchableOpacity
+            className="absolute top-1/2 -mt-[22px] left-3 w-11 h-11 rounded-full bg-black/35 items-center justify-center border border-white/60"
+            onPress={() => goTo(index - 1, true)}
+          >
             <MaterialCommunityIcons name="chevron-left" size={36} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.modalArrow, { right: 12 }]} onPress={() => goTo(index + 1, true)}>
+
+          <TouchableOpacity
+            className="absolute top-1/2 -mt-[22px] right-3 w-11 h-11 rounded-full bg-black/35 items-center justify-center border border-white/60"
+            onPress={() => goTo(index + 1, true)}
+          >
             <MaterialCommunityIcons name="chevron-right" size={36} color="#fff" />
           </TouchableOpacity>
         </View>
       </Modal>
     </>
   );
-}
-
-const styles = StyleSheet.create({
-  bannerWrap: {
-    alignSelf: "center",
-    borderRadius: 12,
-    overflow: "hidden",
-    marginBottom: 20,
-  },
-  banner: { resizeMode: "cover" },
-  arrow: {
-    position: "absolute",
-    top: "45%",
-    backgroundColor: "rgba(255,255,255,0.85)",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalRoot: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.95)",
-  },
-  closeBtn: {
-    position: "absolute",
-    top: 40,
-    right: 16,
-    zIndex: 2,
-    padding: 6,
-  },
-  fullImage: {
-    width: SCREEN_W,
-    height: SCREEN_H,
-    resizeMode: "contain",
-  },
-  modalArrow: {
-    position: "absolute",
-    top: "50%",
-    marginTop: -22,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.6)",
-  },
-});
+};
+export default ImageCarousel;

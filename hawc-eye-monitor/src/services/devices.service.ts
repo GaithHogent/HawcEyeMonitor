@@ -68,7 +68,6 @@ export const removeDevice = async (id: string) => {
   await deleteDoc(doc(db, DEVICES_COL, id));
 };
 
-// NEW: subscribe to a single device (live updates)
 export const subscribeDevice = (
   id: string,
   onChange: (item: DeviceItem | null) => void

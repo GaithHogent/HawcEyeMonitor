@@ -31,11 +31,11 @@ type Args = {
   MARKER_SIZE: number;
 };
 
-const DEFAULT_MARGIN_X = 0.18; // يمين/يسار
-const DEFAULT_MARGIN_TOP = 0.12; // فوق
-const DEFAULT_MARGIN_BOTTOM = 0.18; // جوه
+const DEFAULT_MARGIN_X = 0.18; 
+const DEFAULT_MARGIN_TOP = 0.12;
+const DEFAULT_MARGIN_BOTTOM = 0.18;
 
-// ===== غرف اليمين (office-101/102/103) =====
+// ===== Right rooms (office-101/102/103) =====
 const RIGHT_MARGIN_X = 0.2;
 const RIGHT_MARGIN_TOP = 0.1;
 const RIGHT_MARGIN_BOTTOM = 0.1;
@@ -85,7 +85,7 @@ export const useRoomGeometry = ({ floorId, roomId, MARKER_SIZE }: Args) => {
     marginBottom.value = mb;
   }, [mx, mt, mb]);
 
-  // مساحة الـ stage
+
   const [stageBox, setStageBox] = useState<StageBox>({ x: 0, y: 0, w: 0, h: 0 });
   const stageW = useSharedValue(0);
   const stageH = useSharedValue(0);

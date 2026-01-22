@@ -5,9 +5,9 @@ import type { DeviceStatusKey } from "./deviceStatuses";
 export type DeviceStatus = DeviceStatusKey;
 
 export type DeviceDoc = {
-  name: string;        // سيُستخدم كـ "الوصف"
-  type: string;        // مفتاح النوع
-  status: DeviceStatus; // يُضبط تلقائيًا عند الإضافة
+  name: string;
+  type: string;
+  status: DeviceStatus;
 
   floor?: number;
   roomId?: string;

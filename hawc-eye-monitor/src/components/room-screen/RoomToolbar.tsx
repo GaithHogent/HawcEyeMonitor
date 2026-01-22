@@ -101,7 +101,6 @@ const RoomToolbar = ({
               ))}
           </ScrollView>
 
-          {/* ✅ Custom horizontal scrollbar (same design) */}
           <View
             pointerEvents="none"
             className={`absolute left-3 right-[62px] bottom-[5px] h-[6px] justify-center ${!canScrollToolbar ? "opacity-0" : ""}`}

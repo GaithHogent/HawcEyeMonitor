@@ -34,7 +34,6 @@ export const useRoomFirestore = ({ roomId, floorId, stageBox, getRoomRectContent
 
   const pendingPlacedRef = useRef<Record<string, PlacedDevice>>({});
 
-  // ===== Firestore: كل الأجهزة (للشريط + الاسم/النوع) =====
   useEffect(() => {
     const qAll = query(collection(db, "devices"));
 
@@ -64,7 +63,6 @@ export const useRoomFirestore = ({ roomId, floorId, stageBox, getRoomRectContent
     return () => unsubAll();
   }, []);
 
-  // ===== Firestore: الأجهزة الأكتيف داخل هالغرفة (حتى تبقى ثابتة) =====
   useEffect(() => {
     const qRoom = query(collection(db, "devices"), where("status", "in", ["active", "issue"]), where("roomId", "==", roomId));
 

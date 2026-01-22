@@ -119,46 +119,46 @@ export default function Floor3Svg({ onRoomPress, onlyRoomId }: Props) {
   }, [onlyRoomId]);
 
   return (
-  <Svg viewBox={vb} width="100%" height="100%" preserveAspectRatio="none">
-    {showAll && (
-      <Rect
-        id="boundary"
-        fill="#f9fbff"
-        stroke="#1a1f36"
-        strokeWidth={2}
-        x={0}
-        y={0}
-        width={FLOOR_W}
-        height={FLOOR_H}
-      />
-    )}
+    <Svg viewBox={vb} width="100%" height="100%" preserveAspectRatio="none">
+      {showAll && (
+        <Rect
+          id="boundary"
+          fill="#f9fbff"
+          stroke="#1a1f36"
+          strokeWidth={2}
+          x={0}
+          y={0}
+          width={FLOOR_W}
+          height={FLOOR_H}
+        />
+      )}
 
-    {ROOMS.map((r) => {
-      if (!show(r.id)) return null;
+      {ROOMS.map((r) => {
+        if (!show(r.id)) return null;
 
-      const { x, y, w, h, rx } = r.rect;
+        const { x, y, w, h, rx } = r.rect;
 
-      return (
-        <G key={r.id} id={r.id} onPress={() => onRoomPress?.(r.id)}>
-          <Rect fill={r.fill} stroke="#1a1f36" strokeWidth={2} x={x} y={y} width={w} height={h} rx={rx ?? 0} />
+        return (
+          <G key={r.id} id={r.id} onPress={() => onRoomPress?.(r.id)}>
+            <Rect fill={r.fill} stroke="#1a1f36" strokeWidth={2} x={x} y={y} width={w} height={h} rx={rx ?? 0} />
 
-          {showAll && (
-            <Text
-              fontFamily="Arial, Helvetica, sans-serif"
-              fontSize={20}
-              fill="#1a1f36"
-              x={r.labelPos?.x ?? x + w / 2}
-              y={r.labelPos?.y ?? y + h / 2}
-              textAnchor={r.labelPos?.anchor ?? "middle"}
-            >
-              {r.label}
-            </Text>
-          )}
+            {showAll && (
+              <Text
+                fontFamily="Arial, Helvetica, sans-serif"
+                fontSize={20}
+                fill="#1a1f36"
+                x={r.labelPos?.x ?? x + w / 2}
+                y={r.labelPos?.y ?? y + h / 2}
+                textAnchor={r.labelPos?.anchor ?? "middle"}
+              >
+                {r.label}
+              </Text>
+            )}
 
-          {r.door && <Rect fill="#1a1f36" x={r.door.x} y={r.door.y} width={r.door.w} height={r.door.h} />}
-        </G>
-      );
-    })}
-  </Svg>
-);
+            {r.door && <Rect fill="#1a1f36" x={r.door.x} y={r.door.y} width={r.door.w} height={r.door.h} />}
+          </G>
+        );
+      })}
+    </Svg>
+  );
 }

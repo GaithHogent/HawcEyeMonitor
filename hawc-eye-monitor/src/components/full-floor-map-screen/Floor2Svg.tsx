@@ -24,7 +24,7 @@ export const FLOOR2_VB_MIN_H = 300;
 const FLOOR_W = 760;
 const FLOOR_H = 1160;
 
-// ===== Rooms definition (نفس إحداثياتك) =====
+// ===== Rooms definition  =====
 export const ROOMS: RoomDef[] = [
 
   {
@@ -122,8 +122,8 @@ export default function Floor2Svg({ onRoomPress, onlyRoomId }: Props) {
   }, [onlyRoomId]);
 
   return (
-   <Svg viewBox={vb} width="100%" height="100%" preserveAspectRatio="none">
-      {/* حدود الطابق (نخفيه عند عرض غرفة واحدة) */}
+    <Svg viewBox={vb} width="100%" height="100%" preserveAspectRatio="none">
+
       {showAll && (
         <Rect
           id="boundary"

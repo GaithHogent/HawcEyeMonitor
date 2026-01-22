@@ -24,7 +24,7 @@ export const FLOOR1_VB_MIN_H = 300;
 const FLOOR_W = 760;
 const FLOOR_H = 1160;
 
-// ===== Rooms definition (نفس إحداثياتك) =====
+// ===== Rooms definition =====
 export const ROOMS: RoomDef[] = [
   {
     id: "corridor",
@@ -122,7 +122,7 @@ export default function Floor1Svg({ onRoomPress, onlyRoomId }: Props) {
 
   return (
     <Svg viewBox={vb} width="100%" height="100%" preserveAspectRatio="none">
-      {/* حدود الطابق (نخفيه عند عرض غرفة واحدة) */}
+
       {showAll && (
         <Rect
           id="boundary"
@@ -142,34 +142,34 @@ export default function Floor1Svg({ onRoomPress, onlyRoomId }: Props) {
         const { x, y, w, h, rx } = r.rect;
 
         return (
-  <G key={r.id} id={r.id} onPress={() => onRoomPress?.(r.id)}>
-    <Rect
-      fill={r.fill}
-      stroke="#1a1f36"
-      strokeWidth={2}
-      x={x}
-      y={y}
-      width={w}
-      height={h}
-      rx={rx ?? 0}
-    />
+          <G key={r.id} id={r.id} onPress={() => onRoomPress?.(r.id)}>
+            <Rect
+              fill={r.fill}
+              stroke="#1a1f36"
+              strokeWidth={2}
+              x={x}
+              y={y}
+              width={w}
+              height={h}
+              rx={rx ?? 0}
+            />
 
-    {showAll && (
-      <Text
-        fontFamily="Arial, Helvetica, sans-serif"
-        fontSize={20}
-        fill="#1a1f36"
-        x={r.labelPos?.x ?? x + w / 2}
-        y={r.labelPos?.y ?? y + h / 2}
-        textAnchor={r.labelPos?.anchor ?? "middle"}
-      >
-        {r.label}
-      </Text>
-    )}
+            {showAll && (
+              <Text
+                fontFamily="Arial, Helvetica, sans-serif"
+                fontSize={20}
+                fill="#1a1f36"
+                x={r.labelPos?.x ?? x + w / 2}
+                y={r.labelPos?.y ?? y + h / 2}
+                textAnchor={r.labelPos?.anchor ?? "middle"}
+              >
+                {r.label}
+              </Text>
+            )}
 
-    {r.door && <Rect fill="#1a1f36" x={r.door.x} y={r.door.y} width={r.door.w} height={r.door.h} />}
-  </G>
-);
+            {r.door && <Rect fill="#1a1f36" x={r.door.x} y={r.door.y} width={r.door.w} height={r.door.h} />}
+          </G>
+        );
 
       })}
     </Svg>

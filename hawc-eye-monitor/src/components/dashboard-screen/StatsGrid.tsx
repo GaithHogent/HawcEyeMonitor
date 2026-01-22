@@ -1,5 +1,5 @@
 // src/components/dashboard-screen/StatsGrid.tsx
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 
 type StatItem = {
   label: string;
@@ -11,13 +11,20 @@ type Props = {
   stats: StatItem[];
 };
 
-export default function StatsGrid({ stats }: Props) {
+const StatsGrid = ({ stats }: Props) => {
   return (
-    <View style={styles.grid}>
+    <View className="flex-row flex-wrap justify-between gap-3">
       {stats.map((item, i) => (
-        <View key={i} style={styles.card}>
-          <Text style={styles.label}>{item.label}</Text>
-          <Text style={[styles.value, { color: item.color || "#111" }]}>
+        <View
+          key={i}
+          className="w-[48%] bg-white rounded-2xl p-3"
+          style={{ elevation: 1 }}
+        >
+          <Text className="text-gray-500 text-xs">{item.label}</Text>
+          <Text
+            className="mt-1.5 text-[26px] font-extrabold"
+            style={{ color: item.color || "#111" }}
+          >
             {item.value}
           </Text>
         </View>
@@ -25,21 +32,4 @@ export default function StatsGrid({ stats }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 12 as any,
-  },
-  card: {
-    width: "48%",
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 12,
-    elevation: 1,
-  },
-  label: { color: "#6b7280", fontSize: 12 },
-  value: { marginTop: 6, fontSize: 26, fontWeight: "800" },
-});
+export default StatsGrid;

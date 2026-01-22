@@ -1,7 +1,7 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { View, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useSharedValue, runOnJS, useAnimatedStyle } from "react-native-reanimated";
+import { useSharedValue} from "react-native-reanimated";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { serverTimestamp, updateDoc, deleteField, doc } from "firebase/firestore";
@@ -32,7 +32,6 @@ const RoomScreen = () => {
 
   const [draggingPlaced, setDraggingPlaced] = useState<{ id: string; type: DeviceType } | null>(null);
 
-  // ✅ NEW: لا تمسح pending عند فتح مودال (DeviceFormModal) ثم الرجوع
   const skipClearOnBlurRef = useRef(false);
 
   const {
@@ -57,7 +56,6 @@ const RoomScreen = () => {
     MARKER_SIZE,
   });
 
-  // scale ثابت
   useSharedValue(1);
 
   const {
@@ -97,18 +95,15 @@ const RoomScreen = () => {
     [toolSelectedId, toolbarDevices]
   );
 
-  // ✅ hint للـ horizontal scroll بالـ toolbar
   const [toolScrollW, setToolScrollW] = useState(0);
   const [toolContentW, setToolContentW] = useState(0);
   const [toolScrollX, setToolScrollX] = useState(0);
 
-  // ✅ custom scrollbar (track width)
   const [toolIndicatorW, setToolIndicatorW] = useState(0);
 
   const canScrollToolbar = toolContentW > toolScrollW + 1;
   const toolMaxX = Math.max(0, toolContentW - toolScrollW);
 
-  // ✅ thumb sizing/position
   const toolVisibleRatio = toolContentW > 0 ? toolScrollW / toolContentW : 1;
   const toolThumbW = Math.max(26, toolIndicatorW * Math.min(1, toolVisibleRatio));
   const toolThumbMaxX = Math.max(0, toolIndicatorW - toolThumbW);
@@ -147,31 +142,31 @@ const RoomScreen = () => {
     setDraggingPlaced,
   });
 
-  // ✅ blur listener
+  // blur listener
   useEffect(() => {
     const unsubBlur = navigation.addListener("blur", () => {
-      // ✅ NEW: إذا رحت لمودال (إضافة/تعديل) لا تمسح pending
+
       if (skipClearOnBlurRef.current) return;
 
-      // ✅ شيل كل الأجهزة اللي ما انحفظت
+
       setPlaced((prev: PlacedDevice[]) => prev.filter((p) => !pendingIdsRef.current.has(p.id)));
 
-      // ✅ نظّف pending refs
+
       pendingPlacedRef.current = {};
 
-      // ✅ رجعهم للشريط
+
       setPendingIds(() => {
         const next = new Set<string>();
         pendingIdsRef.current = next;
         return next;
       });
 
-      // (اختياري) نظّف اختيار الشريط
+
       setToolSelectedId(null);
     });
 
     const unsubFocus = navigation.addListener("focus", () => {
-      // ✅ رجعت للـ RoomScreen بعد المودال -> خلّي أي blur لاحق يشتغل طبيعي
+
       skipClearOnBlurRef.current = false;
     });
 
@@ -209,7 +204,7 @@ const RoomScreen = () => {
 
     const info = devicesById[selected.id];
 
-    // ✅ NEW: فتح مودال = لا تمسح pending على blur
+
     skipClearOnBlurRef.current = true;
 
     navigation.navigate("DeviceFormModal", {
@@ -228,7 +223,7 @@ const RoomScreen = () => {
 
     closeDetails();
 
-    // ✅ NEW: فتح ReportIssue = لا تمسح pending على blur
+
     skipClearOnBlurRef.current = true;
 
     const parent = navigation.getParent();
@@ -288,12 +283,12 @@ const RoomScreen = () => {
     openDetails(item);
   };
 
-  // ✅ Delete: يرجع للشريط + يحذف roomId/x/y
+
   const onDeleteSelected = async () => {
     if (!selected) return;
     if (deleting) return;
 
-    // ✅ إذا الجهاز Pending (لسه ما محفوظ)
+
     if (pendingIdsRef.current.has(selected.id)) {
       setPlaced((prev: PlacedDevice[]) => prev.filter((p) => p.id !== selected.id));
 
@@ -386,7 +381,7 @@ const RoomScreen = () => {
         setToolScrollX={setToolScrollX}
         setToolIndicatorW={setToolIndicatorW}
         onAddPress={() => {
-          // ✅ NEW: فتح مودال = لا تمسح pending على blur
+
           skipClearOnBlurRef.current = true;
 
           navigation.navigate("DeviceFormModal", {
@@ -412,7 +407,7 @@ const RoomScreen = () => {
         placedGhostStyle={placedGhostStyle}
       />
 
-      {/* ✅ Save button */}
+      {/* Save button */}
       <View className="border-t border-gray-200 bg-white px-3 py-2.5">
         <Button
           label={saving ? "Saving..." : "Save"}

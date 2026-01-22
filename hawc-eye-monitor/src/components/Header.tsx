@@ -1,44 +1,26 @@
 // src/components/common/Header.tsx
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 
 type Props = {
   title: string;
   subtitle?: string;
 };
 
-export default function Header({ title, subtitle }: Props) {
+const Header = ({ title, subtitle }: Props) => {
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-      <View style={styles.accent} />
+    <View className="mb-4">
+      <Text className="text-[22px] font-extrabold text-[#0d7ff2] text-center">
+        {title}
+      </Text>
+
+      {subtitle ? (
+        <Text className="text-center text-gray-500 text-sm mt-[2px]">
+          {subtitle}
+        </Text>
+      ) : null}
+
+      <View className="self-center mt-2.5 h-1 w-[52px] bg-[#0d7ff2] rounded-full opacity-85" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#0d7ff2",
-    textAlign: "center",
-  },
-  subtitle: {
-    textAlign: "center",
-    color: "#6b7280",
-    fontSize: 14,
-    marginTop: 2,
-  },
-  accent: {
-    alignSelf: "center",
-    marginTop: 10,
-    height: 4,
-    width: 52,
-    backgroundColor: "#0d7ff2",
-    borderRadius: 999,
-    opacity: 0.85,
-  },
-});
+export default Header;

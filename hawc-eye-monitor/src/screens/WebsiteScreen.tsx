@@ -1,6 +1,6 @@
 // src/screens/WebsiteScreen.tsx
-import { View, TouchableOpacity, BackHandler } from "react-native";
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import { Text ,View, TouchableOpacity, BackHandler } from "react-native";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { WebView } from "react-native-webview";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -36,6 +36,7 @@ const WebsiteScreen = () => {
             accessibilityRole="button"
           >
             <MaterialCommunityIcons name="arrow-left" size={22} color="#007AFF" />
+            <Text>Back</Text>
           </TouchableOpacity>
         </View>
       )}
