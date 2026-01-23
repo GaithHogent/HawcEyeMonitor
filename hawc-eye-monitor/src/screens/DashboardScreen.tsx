@@ -72,11 +72,11 @@ const DashboardScreen = () => {
         latestAlerts.map((item) => (
           <View key={item.id} className="bg-white rounded-xl p-3 mb-2">
             <Text className="font-bold text-red-500" numberOfLines={1}>
-              {item.issueType || item.name}
+              {`${item.name} - ${item.issueType}`}
             </Text>
-            {!!item.issueDescription && (
-              <Text className="mt-1 text-xs text-gray-500" numberOfLines={2}>
-                {item.issueDescription}
+            {!!item.issueStartAt && (
+              <Text className="mt-1 text-xs" numberOfLines={2}>
+                {item.issueStartAt.toDate().toLocaleString()}
               </Text>
             )}
           </View>
