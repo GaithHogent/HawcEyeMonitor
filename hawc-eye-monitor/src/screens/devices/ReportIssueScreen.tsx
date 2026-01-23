@@ -1,6 +1,6 @@
 // src/screens/devices/ReportIssueScreen.tsx
 import { View, Text, TextInput, ActivityIndicator, Alert } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { DevicesStackNavProps, DevicesStackParamsList } from "../../navigators/types";
 import type { RouteProp } from "@react-navigation/native";
@@ -18,6 +18,26 @@ const ReportIssueScreen = () => {
   const [issueDescription, setIssueDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (!returnTo) return;
+
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+
+      const parent = navigation.getParent();
+      if (parent) {
+        parent.navigate(
+          returnTo.tab as any,
+          returnTo.screen
+            ? ({ screen: returnTo.screen, params: returnTo.params } as any)
+            : undefined
+        );
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, returnTo]);
+
   const onSubmit = async () => {
     if (!issueType.trim()) return;
 
@@ -28,7 +48,12 @@ const ReportIssueScreen = () => {
       if (returnTo) {
         const parent = navigation.getParent();
         if (parent) {
-          parent.navigate(returnTo.tab as any, returnTo.screen ? ({ screen: returnTo.screen, params: returnTo.params } as any) : undefined);
+          parent.navigate(
+            returnTo.tab as any,
+            returnTo.screen
+              ? ({ screen: returnTo.screen, params: returnTo.params } as any)
+              : undefined
+          );
           return;
         }
       }
